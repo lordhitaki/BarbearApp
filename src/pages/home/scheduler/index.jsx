@@ -7,12 +7,12 @@ import firestore from '@react-native-firebase/firestore';
 import * as Styled from './styles';
 import {Title} from '../../../components/title';
 import Button from '../../../components/button';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Scheduler() {
   // const navigation = useNavigation();
   const [date, setDate] = useState(new Date());
   const options = {weekday: 'long', timeZone: 'UTC'};
-  const minimumDate = new Date();
 
   const [open, setOpen] = useState(false);
   const [profissionais, setProfissionais] = useState('');
@@ -86,7 +86,7 @@ export default function Scheduler() {
           error,
         );
       });
-  }, []);
+  }, [selectedDayOfWeek]);
 
   const order = {
     dia: formattedDate,
@@ -98,7 +98,7 @@ export default function Scheduler() {
   };
 
   const Envio = () => {
-    const collectionRef = firestore().collection('teste');
+    const collectionRef = firestore().collection('agendados');
     const query = collectionRef
       .where('profissional', '==', order.profissional)
       .where('dia', '==', order.dia)
@@ -109,13 +109,13 @@ export default function Scheduler() {
 
     firestore()
       .collection('profissionais')
-      .where('horarios', 'array-contains', horarioParaVerificar)
+      .where(selectedDayOfWeek, 'array-contains', horarioParaVerificar)
       .get()
       .then(querySnapshot => {
         if (querySnapshot.size === 0) {
           console.log('Horário não existe na coleção "profissionais".');
           horarioNaoExiste = true;
-          testando(chose.id);
+          getPro(chose?.id);
         } else {
           console.log('Horário existe na coleção "profissionais".');
         }
@@ -133,19 +133,22 @@ export default function Scheduler() {
                     console.log('Pedido adicionado com sucesso!');
 
                     if (chose) {
-                      const updatedHorarios = chose.horarios.filter(
-                        horario => horario !== selectedTime,
-                      );
+                      const fieldName = selectedDayOfWeek;
+                      const updatedHorarios = chose
+                        ? (chose[fieldName] || []).filter(
+                            horario => horario !== selectedTime,
+                          )
+                        : [];
                       const updatedChose = {
                         ...chose,
-                        horarios: updatedHorarios,
+                        [fieldName]: updatedHorarios,
                       };
 
                       setChose(updatedChose);
 
                       firestore()
                         .collection('profissionais')
-                        .doc(chose.id)
+                        .doc(chose?.id)
                         .update(updatedChose)
                         .then(() => {
                           console.log(
@@ -175,7 +178,7 @@ export default function Scheduler() {
       });
   };
 
-  const testando = profissionalId => {
+  const getPro = profissionalId => {
     firestore()
       .collection('profissionais')
       .doc(profissionalId)
@@ -183,9 +186,12 @@ export default function Scheduler() {
       .then(documentSnapshot => {
         if (documentSnapshot.exists) {
           const profissionalData = documentSnapshot.data();
-          const horariosDisponiveis = profissionalData.horarios || [];
+          const horariosDisponiveis = profissionalData.sele || [];
 
-          setChose({...chose, horarios: horariosDisponiveis});
+          setChose({
+            ...chose,
+            [selectedDayOfWeek.toLowerCase()]: horariosDisponiveis,
+          });
         } else {
           console.log('Profissional não encontrado no Firestore.');
         }
@@ -237,6 +243,7 @@ export default function Scheduler() {
       </Styled.BoxFlat>
     );
   };
+
   return (
     <Styled.Container>
       <Styled.Touch onPress={() => setOpen(true)}>
@@ -403,7 +410,7 @@ export default function Scheduler() {
                           size="large"
                           family="bold"
                         />
-                        <Styled.Teste
+                        <Styled.Img1
                           source={{
                             uri: profissional?.img,
                           }}

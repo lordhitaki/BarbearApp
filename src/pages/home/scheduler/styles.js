@@ -80,7 +80,7 @@ export const ModalView = styled.View`
   elevation: 30;
 `;
 
-export const Teste = styled.Image`
+export const Img1 = styled.Image`
   width: 100px;
   height: 100px;
   object-fit: contain;

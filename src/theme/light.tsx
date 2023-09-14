@@ -39,7 +39,7 @@ export default {
     border: '#DEDEDE',
     success: '#2CB34A',
     greenTitle: '#338720',
-    error: '#ED1B24',
+    error: '#FC0137',
     title: '#3C1053',
     veryDarkViolet: '#3C1053',
     successLight: '#94c93d',
