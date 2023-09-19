@@ -6,26 +6,20 @@ export const Container = styled.View`
   align-items: center;
 `;
 
-export const BoxPass = styled.View`
-  width: 100%;
-  align-items: center;
-  justify-content: center;
-  flex-direction: row;
-`;
-
-export const TouchPass = styled.TouchableOpacity`
-  position: absolute;
-  top: 40px;
-  z-index: 1;
-  right: 30px;
-`;
-
 export const BoxInput = styled.View`
   width: 100%;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 40px;
+  margin-top: 40px;
 `;
 
 export const BoxSocial = styled.View`
   flex-direction: row;
 `;
+
+export const ErrorText = styled.Text`
+  color: red;
+  size: 18px;
+`;
+
+export const Teste = styled.View``;

@@ -74,7 +74,6 @@ export default function MySchedule() {
                       horarios: profissionalData[key],
                     }));
 
-                  // Atualize o estado isDaySelected com os dados formatados
                   const updatedIsDaySelected = {};
                   diasFormatados.forEach(dia => {
                     updatedIsDaySelected[dia.dia] = dia.horarios;
@@ -99,29 +98,23 @@ export default function MySchedule() {
   }, [schedules]);
 
   const combineSelectedSchedules = () => {
-    // Crie uma cópia do objeto selectedDaySchedules
     const updatedSelectedDaySchedules = {...selectedDaySchedules};
 
-    // Itere sobre as chaves dos estados isDaySelected
     for (const dia in isDaySelected) {
       if (updatedSelectedDaySchedules[dia]) {
-        // Combine os horários existentes com os horários de isDaySelected
         updatedSelectedDaySchedules[dia] = [
           ...updatedSelectedDaySchedules[dia],
           ...isDaySelected[dia],
         ];
       } else {
-        // Se não houver horários existentes, use os horários de isDaySelected
         updatedSelectedDaySchedules[dia] = [...isDaySelected[dia]];
       }
 
-      // Remova duplicatas dos horários combinados
       updatedSelectedDaySchedules[dia] = [
         ...new Set(updatedSelectedDaySchedules[dia]),
       ];
     }
 
-    // Atualize o estado selectedDaySchedules com os novos valores combinados
     setSelectedDaySchedules(updatedSelectedDaySchedules);
   };
 
@@ -172,21 +165,17 @@ export default function MySchedule() {
     const scheduleData = {};
 
     for (const dia in selectedDaySchedules) {
-      // Converta o dia de volta para o formato original (ex: 'Seg' para 'segunda-feira')
       const fullDay = dayMapping[dia] || dia;
 
-      // Crie um novo objeto para esse dia com os horários selecionados
       scheduleData[fullDay] = selectedDaySchedules[dia];
     }
 
-    // Verifique se o documento já existe para o usuário atual (uid)
     firestore()
       .collection('profissionais')
       .where('uid', '==', uid)
       .get()
       .then(querySnapshot => {
         if (!querySnapshot.empty) {
-          // O documento existe, atualize-o
           querySnapshot.forEach(doc => {
             firestore()
               .collection('profissionais')
@@ -200,7 +189,6 @@ export default function MySchedule() {
               });
           });
         } else {
-          // O documento não existe, crie um novo
           firestore()
             .collection('profissionais')
             .add({scheduleData})

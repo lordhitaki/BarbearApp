@@ -5,14 +5,14 @@ import SplashScreen from '../pages/splashScreen';
 import Index from '../pages/index/index';
 import Login from '../pages/account/login';
 import Register from '../pages/account/register';
-import RegisterSuccess from '../pages/account/register/registerSuccess';
+import CompleteRegistration from '../pages/account/register/registerSuccess';
 import Home from '../pages/home';
 
 const Stack = createNativeStackNavigator();
 
 export default function Routes() {
   return (
-    <Stack.Navigator initialRouteName="Index">
+    <Stack.Navigator initialRouteName="SplashScreen">
       <Stack.Screen
         name="SplashScreen"
         component={SplashScreen}
@@ -34,8 +34,8 @@ export default function Routes() {
         options={{headerShown: false}}
       />
       <Stack.Screen
-        name="RegisterSuccess"
-        component={RegisterSuccess}
+        name="CompleteRegistration"
+        component={CompleteRegistration}
         options={{headerShown: false}}
       />
       <Stack.Screen

@@ -5,7 +5,7 @@ export declare global {
       Login: undefined;
       Register: undefined;
       Home: undefined;
-      RegisterSuccess: undefined;
+      CompleteRegistration: undefined;
     }
   }
 }

@@ -1,0 +1,29 @@
+
+----------
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Barbearia\BarbeApp\android\app\debug.keystore
+Alias: androiddebugkey
+MD5: 20:F4:61:48:B7:2D:8E:5E:5C:A2:3D:37:A4:F4:14:90
+SHA1: 5E:8F:16:06:2E:A3:CD:2C:4A:0D:54:78:76:BA:A6:F3:8C:AB:F6:25
+SHA-256: FA:C6:17:45:DC:09:03:78:6F:B9:ED:E6:2A:96:2B:39:9F:73:48:F0:BB:6F:89:9B:83:32:66:75:91:03:3B:9C
+Valid until: terþa-feira, 30 de abril de 2052
+----------
+
+> Task :lottie-react-native:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\Alex Soares\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 81:70:36:E2:0B:7E:68:C0:60:98:58:AB:B1:05:74:12
+SHA1: 5F:29:C1:F5:28:D8:5F:14:CB:27:73:8C:73:C5:9A:A5:3D:C6:FD:99
+SHA-256: DA:A5:08:1D:83:14:D4:37:1F:26:18:07:8A:0C:81:82:7F:8C:99:CA:C8:D8:2D:8D:23:4E:71:64:79:76:F4:3F
+Valid until: sexta-feira, 11 de julho de 2053
+----------
+
+
+
+ReactNativeFirebase WARNING: NPM package '@react-native-firebase/auth' depends on '@react-native-firebase/app' v18.3.2 but found v18.4.0, this might cause build issues or runtime crashes.
+ReactNativeFirebase WARNING: NPM package '@react-native-firebase/firestore' depends on '@react-native-firebase/app' v18.3.2 but found v18.4.0, this might cause build issues or runtime crashes.
+
+

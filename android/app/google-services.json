@@ -7,14 +7,22 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1026438868042:android:0c541778cf0dc383c64ab3",
+        "mobilesdk_app_id": "1:1026438868042:android:b7133e114df89dbec64ab3",
         "android_client_info": {
           "package_name": "com.barbeapp"
         }
       },
       "oauth_client": [
         {
-          "client_id": "1026438868042-4ukrocj1dn4ec3a1enqd1oe4900t2mvm.apps.googleusercontent.com",
+          "client_id": "1026438868042-dajjikal1kco8c8v5doqg33jo54023i4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.barbeapp",
+            "certificate_hash": "5f29c1f528d85f14cb27738c73c59aa53dc6fd99"
+          }
+        },
+        {
+          "client_id": "1026438868042-n7kbi5ob4uo174hnl5r7o47qmbaaecvo.apps.googleusercontent.com",
           "client_type": 3
         }
       ],

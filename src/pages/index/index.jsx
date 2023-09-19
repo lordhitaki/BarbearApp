@@ -3,7 +3,6 @@ import {useNavigation} from '@react-navigation/native';
 import AppIntroSlider from 'react-native-app-intro-slider';
 import * as Styled from './styles';
 import {Title} from '../../components/title';
-import Button from '../../components/button';
 
 // import AsyncStorage from '@react-native-async-storage/async-storage';
 

@@ -8,7 +8,13 @@ function InputErrors({error}: InputErrorsProps) {
   return (
     <>
       {error && (
-        <Title text={error || ''} color="error" size="xxnano" family="light" />
+        <Title
+          text={error || ''}
+          color="error"
+          size="xnano"
+          family="regular"
+          marginLeft="medium"
+        />
       )}
     </>
   );
