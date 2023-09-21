@@ -176,6 +176,7 @@ export default function Scheduler() {
       .catch(error => {
         console.error('Erro ao consultar o Firestore:', error);
       });
+    updateAvailableTimes();
   };
 
   const getPro = profissionalId => {
@@ -207,8 +208,8 @@ export default function Scheduler() {
   const updateAvailableTimesByDate = () => {
     const selectedDay = selectedDayOfWeek.toLowerCase();
 
-    if (chose && chose[selectedDay]) {
-      const times = chose[selectedDay];
+    if (chose && chose.scheduleData[selectedDay]) {
+      const times = chose.scheduleData[selectedDay];
       setAvailableTimes(times);
     } else {
       setAvailableTimes([]);
@@ -217,9 +218,8 @@ export default function Scheduler() {
 
   const updateAvailableTimes = profissional => {
     const selectedDay = selectedDayOfWeek.toLowerCase();
-
-    if (profissional[selectedDay]) {
-      const times = profissional[selectedDay];
+    if (profissional.scheduleData[selectedDay]) {
+      const times = profissional.scheduleData[selectedDay];
       setAvailableTimes(times);
     } else {
       setAvailableTimes([]);
@@ -243,6 +243,28 @@ export default function Scheduler() {
       </Styled.BoxFlat>
     );
   };
+  function orderTimetables(availableTimes) {
+    return availableTimes.sort((a, b) => {
+      const [hourA, minuteA] = a.split(':');
+      const [hourB, minuteB] = b.split(':');
+
+      const hourIntA = parseInt(hourA, 10);
+      const minuteIntA = parseInt(minuteA, 10);
+      const hourIntB = parseInt(hourB, 10);
+      const minuteIntB = parseInt(minuteB, 10);
+
+      if (hourIntA !== hourIntB) {
+        return hourIntA - hourIntB;
+      }
+
+      return minuteIntA - minuteIntB;
+    });
+  }
+  const OrderTimes = orderTimetables(availableTimes);
+
+  useEffect(() => {
+    setAvailableTimes(OrderTimes);
+  }, [OrderTimes]);
 
   return (
     <Styled.Container>

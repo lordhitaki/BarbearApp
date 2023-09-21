@@ -22,12 +22,13 @@ import Face from '../../../../assets/img/face';
 import * as Styled from './styles';
 
 export default function Register() {
-  const navigation = useNavigation();
+  const clienteId =
+    '1026438868042-4ukrocj1dn4ec3a1enqd1oe4900t2mvm.apps.googleusercontent.com';
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const navigation = useNavigation();
 
   GoogleSignin.configure({
-    webClientId:
-      '1026438868042-n7kbi5ob4uo174hnl5r7o47qmbaaecvo.apps.googleusercontent.com',
+    webClientId: clienteId,
   });
 
   const signUpSchema = yup.object({
@@ -66,7 +67,6 @@ export default function Register() {
     await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
     // Get the users ID token
     const {idToken} = await GoogleSignin.signIn();
-    console.log(idToken);
 
     // Create a Google credential with the token
     const googleCredential = auth.GoogleAuthProvider.credential(idToken);
