@@ -16,7 +16,6 @@ export default function Home() {
         const registrationSuccess = await AsyncStorage.getItem(
           'registrationSuccess',
         );
-        console.log(registrationSuccess);
 
         if (registrationSuccess) {
           navigation.navigate('CompleteRegistration');

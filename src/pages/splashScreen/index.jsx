@@ -22,6 +22,7 @@ export default function SplashScreen() {
         await AsyncStorage.removeItem('registrationSuccess');
       } else if (loggedInUser) {
         await AsyncStorage.setItem('user', JSON.stringify(loggedInUser?.uid));
+        await AsyncStorage.setItem('infos', JSON.stringify(loggedInUser));
         navigation.navigate('Home');
       } else {
         navigation.navigate('Login');

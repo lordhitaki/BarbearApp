@@ -15,9 +15,13 @@ buildscript {
         google()
         mavenCentral()
     }
+  
     dependencies {
         classpath("com.android.tools.build:gradle")
         classpath("com.facebook.react:react-native-gradle-plugin")
         classpath("com.google.gms:google-services:4.3.15")
+        // compile "com.google.android.gms:play-services-base:9.8.0"
+        // compile "com.google.android.gms:play-services-maps:9.8.0"
+        
     }
 }

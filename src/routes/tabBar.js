@@ -54,7 +54,6 @@ export default function TabRoute() {
         name="Noticias"
         component={News}
         options={{
-          headerShown: true,
           tabBarIcon: ({color, size, focused}) => {
             if (focused) {
               return <Icon name="newspaper" color="red" size={28} />;
