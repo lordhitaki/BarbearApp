@@ -72,3 +72,9 @@ export const ErrorText = styled.Text`
   color: red;
   size: 100px;
 `;
+
+export const BoxInput = styled.View`
+  margin-top: 20px;
+  margin-bottom: 20px;
+  gap: 20px;
+`;

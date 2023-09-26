@@ -6,6 +6,8 @@ import {Title, TitleProps} from '../title';
 import Load from '../load';
 
 import * as Styled from './styles';
+import Google from '../../../assets/img/google';
+import Face from '../../../assets/img/face';
 
 export interface ButtonProps
   extends TouchableOpacityProps,
@@ -21,13 +23,16 @@ export interface ButtonProps
     | 'success'
     | 'error'
     | 'dark'
+    | 'dark2'
     | 'white'
     | 'grayDark'
     | 'pinkLight'
     | 'title'
     | 'pink'
     | 'primaryLight'
-    | 'transparent';
+    | 'transparent'
+    | 'tertiary';
+
   disabled?: boolean;
   border?:
     | 'primary'
@@ -35,13 +40,16 @@ export interface ButtonProps
     | 'success'
     | 'error'
     | 'dark'
+    | 'dark2'
     | 'white'
     | 'grayDark'
     | 'pinkLight'
     | 'title'
     | 'pink'
     | 'primaryLight'
-    | 'transparent';
+    | 'transparent'
+    | 'tertiary';
+  icon?: 'google' | 'facebook';
 }
 
 export default function Button({
@@ -50,10 +58,21 @@ export default function Button({
   disabled,
   color,
   border,
+  icon,
   ...rest
 }: ButtonProps) {
   return (
     <Styled.Button {...rest} color={color} disabled={disabled} border={border}>
+      {icon === 'google' && (
+        <Styled.BoxIcon>
+          <Google />
+        </Styled.BoxIcon>
+      )}
+      {icon === 'facebook' && (
+        <Styled.BoxIcon1>
+          <Face />
+        </Styled.BoxIcon1>
+      )}
       <Load load={load} color={color || 'white'}>
         <Title
           text={text}

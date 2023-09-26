@@ -148,7 +148,6 @@ export default function Scheduler() {
 
                       firestore()
                         .collection('profissionais')
-                        .doc(chose?.id)
                         .update(updatedChose)
                         .then(() => {
                           console.log(
