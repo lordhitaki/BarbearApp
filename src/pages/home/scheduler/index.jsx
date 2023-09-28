@@ -13,7 +13,7 @@ export default function Scheduler() {
   // const navigation = useNavigation();
   const [date, setDate] = useState(new Date());
   const options = {weekday: 'long', timeZone: 'UTC'};
-
+  const [uid, setUid] = useState();
   const [open, setOpen] = useState(false);
   const [profissionais, setProfissionais] = useState('');
   const [services, setServices] = useState();
@@ -38,7 +38,23 @@ export default function Scheduler() {
 
   useEffect(() => {
     updateAvailableTimesByDate();
+    teste();
   }, [date, chose, selectedDayOfWeek]);
+
+  async function teste() {
+    try {
+      const storedUserJSON = await AsyncStorage.getItem('infos');
+      if (storedUserJSON) {
+        const storedUser = JSON.parse(storedUserJSON);
+        const uidata = storedUser.uid;
+        setUid(uidata);
+      } else {
+        console.log('Nenhum dado armazenado em "infos".');
+      }
+    } catch (error) {
+      console.error('Erro ao obter e analisar os dados: ', error);
+    }
+  }
 
   useEffect(() => {
     firestore()
@@ -54,7 +70,6 @@ export default function Scheduler() {
           };
           profissionaisData.push(profissional);
         });
-
         setProfissionais(profissionaisData);
       })
       .catch(error => {
@@ -95,87 +110,85 @@ export default function Scheduler() {
     profissional: chose?.profissionais,
     serviço: choseService.serviços,
     semana: selectedDayOfWeek,
+    uid: uid,
+    uidPro: chose?.uid,
   };
 
   const Envio = () => {
     const collectionRef = firestore().collection('agendados');
-    const query = collectionRef
-      .where('profissional', '==', order.profissional)
-      .where('dia', '==', order.dia)
-      .where('hora', '==', order.hora);
     const horarioParaVerificar = selectedTime;
 
-    let horarioNaoExiste = false;
+    if (chose && chose.profissionais === order.profissional) {
+      const scheduleData = chose.scheduleData;
+      let horarioNaoExiste = true;
 
-    firestore()
-      .collection('profissionais')
-      .where(selectedDayOfWeek, 'array-contains', horarioParaVerificar)
-      .get()
-      .then(querySnapshot => {
-        if (querySnapshot.size === 0) {
-          console.log('Horário não existe na coleção "profissionais".');
-          horarioNaoExiste = true;
-          getPro(chose?.id);
+      if (scheduleData.hasOwnProperty(order.semana)) {
+        const horariosDisponiveisNoDia = scheduleData[order.semana];
+
+        if (horariosDisponiveisNoDia.includes(order.hora)) {
+          horarioNaoExiste = false;
         } else {
-          console.log('Horário existe na coleção "profissionais".');
+          console.log('Horário não está disponível neste dia.');
         }
+      } else {
+        console.log('Dia selecionado não está presente nas datas disponíveis.');
+      }
 
-        if (!horarioNaoExiste) {
-          query
-            .get()
-            .then(querySnapshot => {
-              if (!querySnapshot.empty) {
-                console.log('Já existe um documento com os mesmos valores.');
-              } else {
-                collectionRef
-                  .add({order})
-                  .then(() => {
-                    console.log('Pedido adicionado com sucesso!');
+      if (!horarioNaoExiste) {
+        collectionRef
+          .where('profissional', '==', order.profissional)
+          .where('dia', '==', order.dia)
+          .where('hora', '==', order.hora)
+          .get()
+          .then(querySnapshot => {
+            if (!querySnapshot.empty) {
+              console.log('Já existe um documento com os mesmos valores.');
+            } else {
+              collectionRef
+                .add(order)
+                .then(() => {
+                  console.log('Pedido adicionado com sucesso!');
 
-                    if (chose) {
-                      const fieldName = selectedDayOfWeek;
-                      const updatedHorarios = chose
-                        ? (chose[fieldName] || []).filter(
-                            horario => horario !== selectedTime,
-                          )
-                        : [];
-                      const updatedChose = {
-                        ...chose,
+                  if (chose) {
+                    const fieldName = selectedDayOfWeek;
+                    const updatedHorarios = (
+                      chose.scheduleData[fieldName] || []
+                    ).filter(horario => horario !== selectedTime);
+                    const updatedChose = {
+                      ...chose,
+                      scheduleData: {
+                        ...chose.scheduleData,
                         [fieldName]: updatedHorarios,
-                      };
+                      },
+                    };
+                    setChose(updatedChose);
 
-                      setChose(updatedChose);
+                    firestore()
+                      .collection('profissionais')
+                      .doc(chose?.id)
+                      .update(updatedChose)
+                      .then(() => {
+                        console.log(
+                          'Horário removido com sucesso do Firestore.',
+                        );
+                      })
+                      .catch(error => {
+                        console.error('Erro ao atualizar o Firestore:', error);
+                      });
+                  }
+                })
+                .catch(error => {
+                  console.error('Erro ao adicionar o pedido:', error);
+                });
+            }
+          })
+          .catch(error => {
+            console.error('Erro ao consultar o Firestore:', error, order);
+          });
 
-                      firestore()
-                        .collection('profissionais')
-                        .update(updatedChose)
-                        .then(() => {
-                          console.log(
-                            'Horário removido com sucesso do Firestore.',
-                          );
-                        })
-                        .catch(error => {
-                          console.error(
-                            'Erro ao atualizar o Firestore:',
-                            error,
-                          );
-                        });
-                    }
-                  })
-                  .catch(error => {
-                    console.error('Erro ao adicionar o pedido:', error);
-                  });
-              }
-            })
-            .catch(error => {
-              console.error('Erro ao consultar o Firestore:', error);
-            });
-        }
-      })
-      .catch(error => {
-        console.error('Erro ao consultar o Firestore:', error);
-      });
-    updateAvailableTimes();
+        updateAvailableTimes(chose);
+      }
+    }
   };
 
   const getPro = profissionalId => {
@@ -186,14 +199,13 @@ export default function Scheduler() {
       .then(documentSnapshot => {
         if (documentSnapshot.exists) {
           const profissionalData = documentSnapshot.data();
+          console.log(profissionalData);
           const horariosDisponiveis = profissionalData.sele || [];
-
           setChose({
             ...chose,
-            [selectedDayOfWeek.toLowerCase()]: horariosDisponiveis,
+            ['scheduleData.' + selectedDayOfWeek.toLowerCase()]:
+              horariosDisponiveis,
           });
-        } else {
-          console.log('Profissional não encontrado no Firestore.');
         }
       })
       .catch(error => {
@@ -220,6 +232,7 @@ export default function Scheduler() {
     if (profissional.scheduleData[selectedDay]) {
       const times = profissional.scheduleData[selectedDay];
       setAvailableTimes(times);
+      getPro();
     } else {
       setAvailableTimes([]);
     }

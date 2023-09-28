@@ -305,6 +305,12 @@ export default function Profile() {
           }}>
           <Title text="Alterar E-mail" size="medium" />
         </Styled.Touch>
+        <Styled.Touch
+          onPress={() => {
+            navigation.navigate('MyScheduleAdmin');
+          }}>
+          <Title text="Monte sua agenda" size="medium" />
+        </Styled.Touch>
 
         <Styled.Modal
           animationType="slide"

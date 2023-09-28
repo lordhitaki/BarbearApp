@@ -3,7 +3,7 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Face from '../../assets/img/face';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 
-import MySchedule from '../pages/home/mySchedule';
+import MySchedule from '../pages/home/mySchedule/';
 import Scheduler from '../pages/home/scheduler';
 import Profile from '../pages/home/profile';
 import News from '../pages/home/news';
