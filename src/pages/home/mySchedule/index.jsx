@@ -3,7 +3,7 @@ import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import firestore from '@react-native-firebase/firestore';
 
-import MyScheduleAdmin from './admin';
+import MyScheduleAdmin from '../../../../back/admin';
 
 import * as Styled from './styles';
 import MyScheduleUser from './user';

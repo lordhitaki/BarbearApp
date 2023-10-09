@@ -34,7 +34,8 @@ export default function Scheduler() {
       setSelectedTime(item);
     }
   };
-  const formattedDate = format(date, 'dd/MM/yyyy');
+  const formattedDate = format(date, 'dd-MM-yyyy');
+  const formattedSend = format(date, 'yyyy-MM-dd');
 
   useEffect(() => {
     updateAvailableTimesByDate();
@@ -80,7 +81,7 @@ export default function Scheduler() {
       });
 
     firestore()
-      .collection('serviços')
+      .collection('services')
       .get()
       .then(querySnapshot => {
         const servicesData = [];
@@ -104,15 +105,16 @@ export default function Scheduler() {
   }, [selectedDayOfWeek]);
 
   const order = {
-    dia: formattedDate,
+    dia: formattedSend,
     hora: selectedTime,
-    preço: choseService.preço,
+    priece: choseService.priece,
     profissional: chose?.profissionais,
-    serviço: choseService.serviços,
+    services: choseService.services,
     semana: selectedDayOfWeek,
     uid: uid,
     uidPro: chose?.uid,
   };
+  console.log(formattedSend);
 
   const Envio = () => {
     const collectionRef = firestore().collection('agendados');
@@ -133,7 +135,6 @@ export default function Scheduler() {
       } else {
         console.log('Dia selecionado não está presente nas datas disponíveis.');
       }
-
       if (!horarioNaoExiste) {
         collectionRef
           .where('profissional', '==', order.profissional)
@@ -247,7 +248,7 @@ export default function Scheduler() {
             setModalVisible1(!modalVisible1);
           }}>
           <Title
-            text={`${item?.serviços} R$ ${item?.preço}`}
+            text={`${item?.services} R$ ${item?.priece}`}
             size="xsmall"
             family="bold"
           />
@@ -343,7 +344,7 @@ export default function Scheduler() {
             <Title
               text={
                 choseService
-                  ? `${choseService.serviços} R$ ${choseService.preço}`
+                  ? `${choseService.services} R$ ${choseService.priece}`
                   : ''
               }
               size="xsmall"
@@ -393,7 +394,7 @@ export default function Scheduler() {
                   marginBottom="nano"
                 />
                 <Title
-                  text={choseService ? `R$ ${choseService.preço}` : ''}
+                  text={choseService ? `R$ ${choseService.priece}` : ''}
                   size="xsmall"
                   family="regular"
                   marginRight="medium"

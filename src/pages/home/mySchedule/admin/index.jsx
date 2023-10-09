@@ -1,19 +1,50 @@
-import React, {useEffect, useId, useState} from 'react';
-import firestore from '@react-native-firebase/firestore';
-import {ActivityIndicator} from 'react-native';
+import React, {useRef, useCallback, useEffect, useState} from 'react';
+import {
+  ExpandableCalendar,
+  AgendaList,
+  CalendarProvider,
+  WeekCalendar,
+  LocaleConfig,
+} from 'react-native-calendars';
 import {useFocusEffect} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {Calendar, LocaleConfig} from 'react-native-calendars';
+import firestore from '@react-native-firebase/firestore';
+import {
+  StyleSheet,
+  Alert,
+  View,
+  Text,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
+import {format, compareAsc, parse} from 'date-fns';
 
+import testIDs from './mocks/testIDs';
+import {getMarkedDates} from './mocks/agendaItems';
+import {getTheme, themeColor} from './mocks/theme';
 import {Title} from '../../../../components/title';
-import * as Styled from './styles';
 
-export default function MyScheduleAdmin() {
-  const [selectedButton, setSelectedButton] = useState('');
-  const [schedules, setSchedules] = useState();
-  const [selectedDaySchedules, setSelectedDaySchedules] = useState({});
+import * as Styled from './styles';
+import Button from '../../../../components/button';
+
+interface Props {
+  weekView?: boolean;
+}
+
+export default function ExpandableCalendarScreen(props: Props) {
+  const today = new Date();
+  const marked = useRef(getMarkedDates());
+  const theme = useRef(getTheme());
+  const formattedDate = format(today, 'yyyy-MM-dd');
   const [user, setUser] = useState();
-  const [selected, setSelected] = useState('');
+  const [schedules, setSchedules] = useState();
+  const [isLoading, setIsLoading] = useState(true);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+
+  const todayBtnTheme = useRef({
+    todayButtonTextColor: themeColor,
+  });
 
   LocaleConfig.locales['pt-br'] = {
     monthNames: [
@@ -65,49 +96,11 @@ export default function MyScheduleAdmin() {
     }, []),
   );
 
-  const dayMapping = {
-    Seg: 'segunda-feira',
-    Ter: 'terça-feira',
-    Qua: 'quarta-feira',
-    Qui: 'quinta-feira',
-    Sex: 'sexta-feira',
-    Sab: 'sábado',
-  };
-
-  const dayMappingReverse = {
-    'segunda-feira': 'Seg',
-    'terça-feira': 'Ter',
-    'quarta-feira': 'Qua',
-    'quinta-feira': 'Qui',
-    'sexta-feira': 'Sex',
-    sábado: 'Sab',
-  };
-
-  const toggleHour = hour => {
-    const updatedSelectedDaySchedules = {...selectedDaySchedules};
-    if (updatedSelectedDaySchedules[selectedButton]) {
-      if (updatedSelectedDaySchedules[selectedButton].includes(hour)) {
-        updatedSelectedDaySchedules[selectedButton] =
-          updatedSelectedDaySchedules[selectedButton].filter(
-            selectedHour => selectedHour !== hour,
-          );
-      } else {
-        updatedSelectedDaySchedules[selectedButton].push(hour);
-      }
-    } else {
-      updatedSelectedDaySchedules[selectedButton] = [hour];
-    }
-    setSelectedDaySchedules(updatedSelectedDaySchedules);
-  };
-
   const fetchUserInfo = async () => {
     try {
       const storedUser = await AsyncStorage.getItem('user');
-      const sanitizedUid = storedUser.replace(/"/g, '');
-      const storedData = await AsyncStorage.getItem('infos');
-      if (storedData) {
-        const parsedData = JSON.parse(storedData);
-      }
+      const sanitizedUid = storedUser?.replace(/"/g, '');
+
       if (storedUser) {
         const infoSnapshot = await firestore()
           .collection('infos')
@@ -117,7 +110,6 @@ export default function MyScheduleAdmin() {
         if (!infoSnapshot.empty) {
           const infoData = infoSnapshot.docs[0]._data;
           setUser(infoData);
-        } else {
         }
       }
     } catch (error) {
@@ -140,95 +132,176 @@ export default function MyScheduleAdmin() {
           .where('uidPro', '==', user.uid)
           .get();
 
+        const serviceData = [];
+
         querySnapshot.forEach(documentSnapshot => {
           const service = {
             id: documentSnapshot.id,
             ...documentSnapshot.data(),
           };
-          setSchedules(service);
+          serviceData.push(service);
         });
+
+        setSchedules(serviceData);
+        setIsLoading(false);
       } catch (error) {
         console.error(
           'Erro ao consultar o Firestore para os serviços: ',
           error,
         );
+        setIsLoading(false);
       }
-    } else {
-      fetchSchedule();
     }
   };
 
-  const renderContent = () => {
-    let showHourSelector = false;
-
-    switch (selectedButton) {
-      case 'Seg':
-      case 'Ter':
-      case 'Qua':
-      case 'Qui':
-      case 'Sex':
-      case 'Sab':
-        showHourSelector = true;
-        break;
-      default:
-        showHourSelector = false;
+  const deleteTask = async taskId => {
+    console.log(taskId);
+    try {
+      await firestore().collection('agendados').doc(taskId).delete();
+      fetchSchedule();
+    } catch (error) {
+      console.error('Erro ao excluir a tarefa:', error);
     }
-    if (showHourSelector) {
+  };
+
+  const sortItemsByDate = (a, b) => {
+    const dateA = new Date(a.title);
+    const dateB = new Date(b.title);
+    return dateA - dateB;
+  };
+
+  // ...
+
+  const ITEMS: any[] =
+    schedules && schedules.length > 0
+      ? schedules.map(item => ({
+          title: item.dia,
+          data: [
+            {
+              hora: item.hora,
+              duration: '30m',
+              title: item.services,
+              uid: item.uid,
+              id: item.id,
+            },
+          ],
+        }))
+      : [];
+
+  const sortedItems = ITEMS.slice().sort(sortItemsByDate);
+
+  const renderItem = useCallback(
+    ({item}) => {
       return (
         <>
-          <Calendar
-            style={{height: 350, width: 350, marginTop: 20}}
-            onDayPress={day => {
-              setSelected(day.dateString);
+          <TouchableOpacity
+            onPress={async () => {
+              setSelectedItem(item);
+              setModalVisible(true);
             }}
-            markedDates={{
-              [selected]: {
-                selected: true,
-                disableTouchEvent: true,
-              },
-            }}
-          />
+            style={styles.item}
+            testID={testIDs.agenda.ITEM}>
+            <View>
+              <Text style={styles.itemHourText}>{item.hora}</Text>
+              <Text style={styles.itemDurationText}>{item.duration}</Text>
+            </View>
+            <Text style={styles.itemTitleText}>{item.title}</Text>
+          </TouchableOpacity>
+          <Styled.Modal
+            animationType="slide"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={() => setModalVisible(false)}>
+            <Styled.BoxModal>
+              <Title text={selectedItem?.title} />
+              <Styled.BoxBt>
+                <Button
+                  text="Feito"
+                  size={40}
+                  colorButton="error"
+                  onPress={async () => {
+                    if (selectedItem) {
+                      await deleteTask(selectedItem.id);
+                    }
+                    setModalVisible(!modalVisible);
+                  }}
+                />
+
+                <Button
+                  text="Ok"
+                  size={40}
+                  colorButton="error"
+                  onPress={() => setModalVisible(!modalVisible)}
+                />
+              </Styled.BoxBt>
+            </Styled.BoxModal>
+          </Styled.Modal>
         </>
       );
-    } else {
-      return null;
-    }
-  };
+    },
+    [modalVisible],
+  );
 
   return (
-    <Styled.Container>
-      <Title
-        text={`Ola ${user?.name}`}
-        marginTop="medium"
-        size="large"
-        family="bold"
+    <CalendarProvider
+      date={formattedDate}
+      showTodayButton
+      theme={todayBtnTheme.current}>
+      <ExpandableCalendar
+        testID={testIDs.expandableCalendar.CONTAINER}
+        theme={theme.current}
+        firstDay={1}
+        markedDates={marked.current}
       />
-      <Styled.BoxSelec>
-        <Title
-          text="Selecione um ou mais dia para ver sua agenda!"
-          size="medium"
-          align="center"
-          family="bold"
+      {isLoading ? (
+        <ActivityIndicator />
+      ) : (
+        <AgendaList
+          sections={sortedItems}
+          renderItem={renderItem}
+          sectionStyle={styles.section}
+          dayFormat={'dd/MM/yyyy'}
         />
-        <Styled.BoxWeek>
-          {['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'].map((day, index) => (
-            <Styled.TouchCheck
-              isSelected={selectedButton === day}
-              key={index}
-              onPress={() => {
-                setSelectedButton(day);
-              }}>
-              <Title
-                text={day}
-                size="medium"
-                family="bold"
-                color={selectedButton === day ? 'white' : 'dark'}
-              />
-            </Styled.TouchCheck>
-          ))}
-        </Styled.BoxWeek>
-      </Styled.BoxSelec>
-      {renderContent()}
-    </Styled.Container>
+      )}
+    </CalendarProvider>
   );
 }
+const styles = StyleSheet.create({
+  item: {
+    padding: 20,
+    backgroundColor: 'white',
+    borderBottomWidth: 1,
+    borderBottomColor: 'lightgrey',
+    flexDirection: 'row',
+  },
+  itemHourText: {
+    color: 'black',
+  },
+  itemDurationText: {
+    color: 'grey',
+    fontSize: 12,
+    marginTop: 4,
+    marginLeft: 4,
+  },
+  itemTitleText: {
+    color: 'black',
+    marginLeft: 16,
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  itemButtonContainer: {
+    flex: 1,
+    alignItems: 'flex-end',
+  },
+  emptyItem: {
+    paddingLeft: 20,
+    height: 52,
+    justifyContent: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: 'lightgrey',
+  },
+  emptyItemText: {
+    color: 'lightgrey',
+    fontSize: 14,
+  },
+});

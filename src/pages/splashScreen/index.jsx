@@ -8,12 +8,10 @@ import * as Styled from './styles';
 import LottieView from 'lottie-react-native';
 
 export default function SplashScreen() {
-  const [user, setUser] = useState(null);
   const navigation = useNavigation();
 
   useEffect(() => {
     const subscriber = auth().onAuthStateChanged(async loggedInUser => {
-      setUser(loggedInUser);
       const registrationSuccess = await AsyncStorage.getItem(
         'registrationSuccess',
       );

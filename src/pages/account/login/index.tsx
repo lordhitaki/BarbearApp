@@ -47,7 +47,7 @@ export default function Login() {
 
   function handleLogin() {
     auth()
-      .signInWithEmailAndPassword(email, password)
+      .signInWithEmailAndPassword(email, password, auth)
       .then(() => alert('Logado com sucesso!'))
       .catch(error => console.log(error));
   }

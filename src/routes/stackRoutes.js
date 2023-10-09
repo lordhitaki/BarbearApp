@@ -10,7 +10,7 @@ import CompleteRegistration from '../pages/account/register/registerSuccess';
 import Home from '../pages/home';
 
 import MyScheduleAdminP from '../pages/home/profile/admin';
-import ExpandableCalendarScreen from '../pages/home/news';
+import ExpandableCalendarScreen from '../pages/home/mySchedule/admin';
 
 const Stack = createNativeStackNavigator();
 
