@@ -22,6 +22,7 @@ export default {
     tertiary: '#f78e1f',
     white: '#FFFFFF',
     dark: '#000000',
+    darklight: '#1f222a',
     input: '#EBEBEB',
     grayMedium: 'rgba(255, 255, 255, 0.15);',
     success: '#2CB34A',

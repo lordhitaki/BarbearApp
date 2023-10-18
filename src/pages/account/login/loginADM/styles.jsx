@@ -9,6 +9,8 @@ export const Container = styled.View`
 export const BoxInput = styled.View`
   width: 100%;
   align-items: center;
+  gap: 30px;
+  margin-bottom: 50px;
 `;
 
 export const BoxPass = styled.View`
@@ -36,4 +38,9 @@ export const Touch = styled.TouchableOpacity``;
 
 export const BoxSocial = styled.View`
   flex-direction: row;
+`;
+
+export const IMG = styled.Image`
+  width: 400px;
+  height: 400px;
 `;

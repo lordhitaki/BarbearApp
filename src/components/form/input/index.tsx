@@ -30,6 +30,8 @@ export default function Input({
   color,
   ...rest
 }: InputProps) {
+  const phoneMask = '(99) 9 9999-9999';
+
   return (
     <Styled.Container size={size}>
       {ComponentRight}
@@ -44,7 +46,7 @@ export default function Input({
         <Styled.StyledTextInput
           as={TextInputMask}
           type="custom"
-          options={{mask}}
+          options={{mask: phoneMask}}
           placeholder={placeholder}
           editable={!disabled}
           {...rest}

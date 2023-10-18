@@ -137,7 +137,7 @@ export default function MyScheduleAdminP() {
 
   useEffect(() => {
     firestore()
-      .collection('Horarios')
+      .collection('schedules')
       .get()
       .then(querySnapshot => {
         const times = [];
@@ -244,7 +244,7 @@ export default function MyScheduleAdminP() {
               {schedules ? (
                 schedules.map((schedule, index) => (
                   <React.Fragment key={index}>
-                    {schedule.hora.map((hour, hourIndex) => (
+                    {schedule.hour.map((hour, hourIndex) => (
                       <Styled.TouchHour
                         key={hourIndex}
                         onPress={() => toggleHour(hour)}

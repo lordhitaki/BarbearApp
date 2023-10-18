@@ -1,119 +1,72 @@
-import React, {useState} from 'react';
-import {TouchableWithoutFeedback, Keyboard} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import * as yup from 'yup';
-import {yupResolver} from '@hookform/resolvers/yup';
-import {useForm} from 'react-hook-form';
+import React from 'react';
 import auth from '@react-native-firebase/auth';
+import {GoogleSignin} from '@react-native-google-signin/google-signin';
+import {useNavigation} from '@react-navigation/native';
+
+import {Title} from '../../../components/title';
+import Button from '../../../components/button';
 
 import * as Styled from './styles';
-import Header from '../../../components/header';
-import InputForm from '../../../components/form/input/form';
-import {Title} from '../../../components/title';
-import Hide from '../../../../assets/img/hide';
-import Show from '../../../../assets/img/show';
-import ButtonSocial from '../../../components/button-social';
-import Face from '../../../../assets/img/face';
-import Google from '../../../../assets/img/google';
-import Button from '../../../components/button';
+import Toast from 'react-native-toast-message';
 
 export default function Login() {
   const navigation = useNavigation();
-  const [passwordVisible, setPasswordVisible] = useState(false);
 
-  const signUpSchema = yup.object({
-    username: yup.string().required('Preencha este campo'),
-    Password: yup.string().required('Informe sua senha!'),
+  const clienteId =
+    '1026438868042-4ukrocj1dn4ec3a1enqd1oe4900t2mvm.apps.googleusercontent.com';
+
+  GoogleSignin.configure({
+    webClientId: clienteId,
   });
 
-  const {
-    control,
-    handleSubmit,
-    watch,
-    formState: {errors, isValid},
-  } = useForm({
-    resolver: yupResolver(signUpSchema),
-    defaultValues: {
-      username: 'teste@teste.com',
-      Password: '123456',
-    },
-  });
-  const email = watch('username');
-  const password = watch('Password');
-
-  const togglePasswordVisibility = () => {
-    setPasswordVisible(prevState => !prevState);
-  };
-
-  function handleLogin() {
-    auth()
-      .signInWithEmailAndPassword(email, password, auth)
-      .then(() => alert('Logado com sucesso!'))
-      .catch(error => console.log(error));
-  }
-
-  function handleForgetPass() {
-    auth()
-      .sendPasswordResetEmail(email)
-      .then(() => alert('E-mail de redefinição enviado'))
-      .catch(error => console.log(error));
+  async function onGoogleButtonPress() {
+    await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
+    const {idToken} = await GoogleSignin.signIn();
+    const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+    Toast.show({
+      type: 'LoginSuccess',
+    });
+    return auth().signInWithCredential(googleCredential);
   }
 
   return (
-    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      <Styled.Container>
-        <Header title="Entrar" />
-        <Styled.BoxInput>
-          <InputForm
-            label="nome de usuário"
-            control={control}
-            name={'username'}
-            size="90%"
-            color="black"
-          />
-          <Styled.BoxPass>
-            <Styled.TouchPass onPress={togglePasswordVisibility}>
-              {passwordVisible ? <Hide /> : <Show />}
-            </Styled.TouchPass>
-            <InputForm
-              control={control}
-              name={'Password'}
-              label="Senha"
-              size="90%"
-              secureTextEntry={!passwordVisible}
-            />
-          </Styled.BoxPass>
-        </Styled.BoxInput>
-        <Styled.BoxForgot>
-          <Title text="Esqueceu sua senha?" />
-          <Styled.Touch onPress={() => handleForgetPass()}>
-            <Title text="Clique aqui" color="error" />
-          </Styled.Touch>
-        </Styled.BoxForgot>
+    <Styled.Container>
+      <Styled.IMG source={require('../../../../assets/img/logo.png')} />
+      <Styled.BoxBTN>
         <Button
-          colorButton="error"
-          text="Entrar"
-          color="white"
-          onPress={() => handleLogin()}
+          text="Google"
+          color="dark"
+          icon="google"
+          colorButton="transparent"
+          border="grayDark"
+          onPress={() => onGoogleButtonPress().then()}
         />
-        <Title text="Ou entre com " marginTop="xlarge" />
-        <Styled.BoxSocial>
-          <ButtonSocial>
-            <Google />
-            <Title text="Google" size="xsmall" family="bold" />
-          </ButtonSocial>
-          <ButtonSocial>
-            <Face />
-            <Title text="Facebook" size="xsmall" family="bold" />
-          </ButtonSocial>
-        </Styled.BoxSocial>
-        <Styled.BoxForgot>
-          <Title text="Ainda não possui um cadastro?" />
-          <Styled.Touch onPress={() => navigation.navigate('Register')}>
-            <Title text="Clique aqui" color="error" />
-          </Styled.Touch>
-        </Styled.BoxForgot>
-      </Styled.Container>
-    </TouchableWithoutFeedback>
+        <Button
+          text="Facebook"
+          color="dark"
+          icon="facebook"
+          colorButton="transparent"
+          border="grayDark"
+          // onPress={() =>
+          //   onFacebookButtonPress().then(() =>
+          //     console.log('Signed in with Facebook!'),
+          //   )
+          // }
+        />
+      </Styled.BoxBTN>
+      <Title
+        text=" Use uma das contas acima para se logar!"
+        marginTop="xxlarge"
+        size="xsmall"
+        color="primary"
+        family="bold"
+      />
+      <Styled.BoxAdm>
+        <Title text="Caso seja um ADM clique " />
+        <Styled.Touch onPress={() => navigation.navigate('LoginAdm')}>
+          <Title text="aqui" color="error" family="bold" />
+        </Styled.Touch>
+      </Styled.BoxAdm>
+    </Styled.Container>
   );
 }

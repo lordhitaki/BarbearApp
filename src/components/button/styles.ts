@@ -9,9 +9,9 @@ export const Button = styled.TouchableOpacity<ButtonProps>`
   height: 55px;
   background-color: ${({theme, colorButton}) =>
     theme.colors[colorButton || 'primary']};
-  border: 2px ${({theme, border}) => theme.colors[border || 'error']};
+  border: 1.5px ${({theme, border}) => theme.colors[border || 'error']};
   opacity: ${({disabled}) => (disabled ? '0.7' : '1')};
-  border-radius: 30px;
+  border-radius: 12px;
   flex-direction: row;
 
   ${({link, theme}) =>
@@ -34,5 +34,5 @@ export const BoxIcon = styled.View`
 `;
 export const BoxIcon1 = styled.View`
   position: absolute;
-  left: 15px;
+  left: 20px;
 `;

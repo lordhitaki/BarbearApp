@@ -6,6 +6,7 @@ import Index from '../pages/index/index';
 import Login from '../pages/account/login';
 import Register from '../pages/account/register';
 import CompleteRegistration from '../pages/account/register/registerSuccess';
+import LoginAdm from '../pages/account/login/loginADM';
 
 import Home from '../pages/home';
 
@@ -16,7 +17,7 @@ const Stack = createNativeStackNavigator();
 
 export default function Routes() {
   return (
-    <Stack.Navigator initialRouteName="ExpandableCalendarScreen">
+    <Stack.Navigator initialRouteName="SplashScreen">
       <Stack.Screen
         name="SplashScreen"
         component={SplashScreen}
@@ -30,6 +31,11 @@ export default function Routes() {
       <Stack.Screen
         name="Login"
         component={Login}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="LoginAdm"
+        component={LoginAdm}
         options={{headerShown: false}}
       />
       <Stack.Screen

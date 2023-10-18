@@ -24,14 +24,13 @@ export const Modal = styled.Modal``;
 export const Touch = styled.TouchableOpacity``;
 
 export const BoxModal = styled.View`
-  margin-left: 60px;
-  margin-top: 240px;
-  align-items: center;
-  width: 70%;
-  height: 300px;
+  margin-top: 50%;
+  width: 100%;
+  height: 28%;
   background-color: white;
   border-radius: 15px;
-  elevation: 50;
+  elevation: 5;
+  flex-direction: row;
 `;
 
 export const BoxBt = styled.View`
@@ -41,4 +40,23 @@ export const BoxBt = styled.View`
   width: 100%;
   justify-content: center;
   gap: 20px;
+`;
+
+export const BoxDescriptionClient = styled.View`
+  margin-top: 20px;
+  width: 60%;
+`;
+export const BoxDescription = styled.View`
+  flex-direction: row;
+  width: 100%;
+  margin-top: 30px;
+  justify-content: center;
+`;
+
+export const IMG = styled.Image`
+  height: 120px;
+  width: 120px;
+  border-radius: 55px;
+  margin-top: 20px;
+  margin-left: 20px;
 `;
