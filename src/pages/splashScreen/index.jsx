@@ -1,19 +1,16 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import auth from '@react-native-firebase/auth';
-
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-import * as Styled from './styles';
 import LottieView from 'lottie-react-native';
 
+import * as Styled from './styles';
+
 export default function SplashScreen() {
-  const [user, setUser] = useState(null);
   const navigation = useNavigation();
 
   useEffect(() => {
     const subscriber = auth().onAuthStateChanged(async loggedInUser => {
-      setUser(loggedInUser);
       const registrationSuccess = await AsyncStorage.getItem(
         'registrationSuccess',
       );
@@ -23,7 +20,7 @@ export default function SplashScreen() {
       } else if (loggedInUser) {
         await AsyncStorage.setItem('user', JSON.stringify(loggedInUser?.uid));
         await AsyncStorage.setItem('infos', JSON.stringify(loggedInUser));
-        navigation.navigate('Home');
+        navigation.navigate('CompleteRegistration');
       } else {
         navigation.navigate('Login');
       }

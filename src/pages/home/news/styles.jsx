@@ -6,4 +6,7 @@ export const Container = styled.View`
   align-items: center;
 `;
 
-export const Touch = styled.TouchableOpacity``;
+export const Img = styled.Image`
+  width: 400px;
+  height: 500px;
+`;

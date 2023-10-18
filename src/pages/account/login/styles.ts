@@ -6,34 +6,20 @@ export const Container = styled.View`
   align-items: center;
 `;
 
-export const BoxInput = styled.View`
+export const IMG = styled.Image`
+  width: 400px;
+  height: 400px;
+`;
+
+export const BoxBTN = styled.View`
   width: 100%;
   align-items: center;
+  gap: 30px;
 `;
 
-export const BoxPass = styled.View`
-  width: 100%;
-  align-items: center;
-  justify-content: center;
+export const BoxAdm = styled.View`
   flex-direction: row;
-`;
-
-export const TouchPass = styled.TouchableOpacity`
-  position: absolute;
-  top: ${props => props.theme.spacings.huge};
-  z-index: 1;
-  right: ${props => props.theme.spacings.xlarge};
-`;
-
-export const BoxForgot = styled.View`
-  flex-direction: row;
-  gap: 10px;
-  margin-top: ${props => props.theme.spacings.xxnano};
-  margin-bottom: ${props => props.theme.spacings.xsmall};
+  margin-top: 20px;
 `;
 
 export const Touch = styled.TouchableOpacity``;
-
-export const BoxSocial = styled.View`
-  flex-direction: row;
-`;

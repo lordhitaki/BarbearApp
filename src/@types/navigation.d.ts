@@ -6,6 +6,8 @@ export declare global {
       Register: undefined;
       Home: undefined;
       CompleteRegistration: undefined;
+      MyScheduleAdmin: undefined;
+      LoginAdm: undefined;
     }
   }
 }

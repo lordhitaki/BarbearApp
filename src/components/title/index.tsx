@@ -65,6 +65,7 @@ export interface TitleProps {
     | 'success'
     | 'error'
     | 'dark'
+    | 'darklight'
     | 'white'
     | 'grayDark'
     | 'grayMedium'

@@ -46,6 +46,7 @@ export default {
     primaryLight: '#A490BA',
     transparent: 'transparent',
     shadown: '#00000040',
+    darklight: '#615f5f',
   },
   spacings: {
     nano: '4px',

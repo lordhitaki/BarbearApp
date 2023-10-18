@@ -6,12 +6,13 @@ export const Button = styled.TouchableOpacity<ButtonProps>`
   margin-top: 10px;
   align-items: center;
   justify-content: center;
-  height: 50px;
+  height: 55px;
   background-color: ${({theme, colorButton}) =>
     theme.colors[colorButton || 'primary']};
-  border: 2px ${({theme, border}) => theme.colors[border || 'error']};
+  border: 1.5px ${({theme, border}) => theme.colors[border || 'error']};
   opacity: ${({disabled}) => (disabled ? '0.7' : '1')};
-  border-radius: 20px;
+  border-radius: 12px;
+  flex-direction: row;
 
   ${({link, theme}) =>
     link &&
@@ -25,4 +26,13 @@ export const Button = styled.TouchableOpacity<ButtonProps>`
 export const Text = styled.Text`
   color: ${({theme}) => theme.colors.primary};
   font-size: 16px;
+`;
+
+export const BoxIcon = styled.View`
+  position: absolute;
+  left: 20px;
+`;
+export const BoxIcon1 = styled.View`
+  position: absolute;
+  left: 20px;
 `;

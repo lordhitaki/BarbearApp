@@ -6,19 +6,29 @@ export const Container = styled.View`
   align-items: center;
 `;
 export const Body = styled.View`
+  width: 100%;
+`;
+
+export const BoxProfilePic = styled.View`
   width: 90%;
+  align-items: center;
+  border-bottom-width: 0.2px;
+`;
+export const ProfilePic = styled.Image`
+  width: 120px;
+  height: 120px;
+  border-radius: 55px;
+  margin-bottom: 20px;
 `;
 
 export const Touch = styled.TouchableOpacity`
   width: 100%;
   height: 40px;
-  border-radius: 15px;
-  background-color: white;
-  elevation: 20;
-  justify-content: center;
-  margin-top: 30px;
+  justify-content: space-between;
+  margin-top: 15px;
   padding-left: 20px;
-  margin-bottom: 20px;
+  flex-direction: row;
+  align-items: center;
 `;
 export const Touch1 = styled.TouchableOpacity`
   width: 20%;
@@ -44,7 +54,6 @@ export const InfoDados = styled.View`
 `;
 
 export const BoxModal = styled.View`
-  flex: 1;
   justify-content: center;
   align-items: center;
 `;
@@ -60,15 +69,27 @@ export const ModalView = styled.View`
   elevation: 30;
 `;
 
-export const BoxTextReset = styled.Text`
-  flex-direction: row;
-`;
-export const BT = styled.View`
-  flex-direction: row;
-  margin-top: 30px;
+export const BoxInput = styled.View`
+  margin-top: 20px;
+  margin-bottom: 20px;
+  gap: 20px;
 `;
 
-export const ErrorText = styled.Text`
-  color: red;
-  size: 100px;
+export const Header = styled.View`
+  flex-direction: row;
+  align-items: flex-start;
+  width: 100%;
+  margin-top: 10px;
+  margin-left: 10px;
+`;
+
+export const Logo = styled.Image`
+  width: 70px;
+  height: 70px;
+`;
+export const Icon = styled.Image`
+  width: 10px;
+  height: 10px;
+  object-fit: contain;
+  margin-right: 5%;
 `;

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {TouchableWithoutFeedback, Keyboard} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import * as yup from 'yup';
@@ -22,16 +22,19 @@ import Face from '../../../../assets/img/face';
 import * as Styled from './styles';
 
 export default function Register() {
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [user, setUser] = useState(null);
+  const navigation = useNavigation();
   const clienteId =
     '1026438868042-4ukrocj1dn4ec3a1enqd1oe4900t2mvm.apps.googleusercontent.com';
-  const [passwordVisible, setPasswordVisible] = useState(false);
-  const navigation = useNavigation();
 
   GoogleSignin.configure({
     webClientId: clienteId,
   });
 
   const signUpSchema = yup.object({
+    name: yup.string().required('Preencha este campo'),
+    phone: yup.string().required('Preencha este campo'),
     email: yup.string().required('Preencha este campo'),
     Password: yup.string().required('Informe sua senha!'),
   });
@@ -44,7 +47,9 @@ export default function Register() {
   } = useForm({
     resolver: yupResolver(signUpSchema),
     defaultValues: {
+      name: '',
       email: '',
+      phone: '',
       Password: '',
     },
   });
@@ -63,15 +68,9 @@ export default function Register() {
   }
 
   async function onGoogleButtonPress() {
-    // Check if your device supports Google Play
     await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
-    // Get the users ID token
     const {idToken} = await GoogleSignin.signIn();
-
-    // Create a Google credential with the token
     const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-
-    // Sign-in the user with the credential
     return auth().signInWithCredential(googleCredential);
   }
 
@@ -116,12 +115,7 @@ export default function Register() {
               family="bold"
             />
             <Styled.BoxSocial>
-              <ButtonSocial
-                onPress={() =>
-                  onGoogleButtonPress().then(() =>
-                    console.log('Signed in with Google!'),
-                  )
-                }>
+              <ButtonSocial onPress={() => onGoogleButtonPress().then()}>
                 <Google />
                 <Title text="Google" size="xsmall" family="bold" />
               </ButtonSocial>

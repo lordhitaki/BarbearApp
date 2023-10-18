@@ -1,9 +1,8 @@
-import React, {useContext} from 'react';
+import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import Face from '../../assets/img/face';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 
-import MySchedule from '../pages/home/mySchedule';
+import MySchedule from '../pages/home/mySchedule/';
 import Scheduler from '../pages/home/scheduler';
 import Profile from '../pages/home/profile';
 import News from '../pages/home/news';
@@ -14,8 +13,8 @@ export default function TabRoute() {
   return (
     <Tab.Navigator
       screenOptions={{
-        tabBarInactiveBackgroundColor: 'black',
-        tabBarActiveBackgroundColor: 'black',
+        tabBarInactiveBackgroundColor: '#DCDCDC',
+        tabBarActiveBackgroundColor: '#DCDCDC',
         tabBarActiveTintColor: 'red',
         headerShown: false,
         tabBarLabelStyle: {
@@ -30,7 +29,7 @@ export default function TabRoute() {
             if (focused) {
               return <Icon name="calendar-check" color="red" size={28} />;
             }
-            return <Icon name="calendar-check" color="white" size={28} />;
+            return <Icon name="calendar-check" color="#000" size={28} />;
           },
         }}
       />
@@ -42,7 +41,7 @@ export default function TabRoute() {
             if (focused) {
               return <Icon name="calendar" color="red" size={28} />;
             }
-            return <Icon name="calendar" color="white" size={28} />;
+            return <Icon name="calendar" color="#000" size={28} />;
           },
           headerStyle: {
             backgroundColor: '#121212',
@@ -58,7 +57,7 @@ export default function TabRoute() {
             if (focused) {
               return <Icon name="newspaper" color="red" size={28} />;
             }
-            return <Icon name="newspaper" color="white" size={28} />;
+            return <Icon name="newspaper" color="#000" size={28} />;
           },
           headerStyle: {
             backgroundColor: '#121212',
@@ -74,7 +73,7 @@ export default function TabRoute() {
             if (focused) {
               return <Icon name="user" color="red" size={28} />;
             }
-            return <Icon name="user" color="white" size={28} />;
+            return <Icon name="user" color="#000" size={28} />;
           },
         }}
       />

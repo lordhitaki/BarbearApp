@@ -17,7 +17,6 @@ export const Touch = styled.TouchableOpacity`
   margin-top: 30px;
   padding-left: 20px;
   border-radius: 30px;
-  elevation: 20;
 `;
 export const Touch1 = styled.TouchableOpacity`
   flex-direction: row;
@@ -29,7 +28,7 @@ export const Touch1 = styled.TouchableOpacity`
   margin-top: 30px;
   padding-left: 20px;
   border-radius: 30px;
-  elevation: 20;
+  elevation: 5;
 `;
 
 export const BoxResume = styled.View`
@@ -38,7 +37,7 @@ export const BoxResume = styled.View`
   background-color: ${props => props.theme.colors.white};
   border-radius: 15px;
   margin-top: 30px;
-  elevation: 30;
+  elevation: 5;
   flex-direction: row;
   justify-content: space-around;
   margin-bottom: 20px;
@@ -55,6 +54,7 @@ export const Img = styled.Image`
   width: 100px;
   height: 100px;
   object-fit: contain;
+  border-radius: 55px;
 `;
 
 export const BoxButton = styled.View`
@@ -64,7 +64,6 @@ export const BoxButton = styled.View`
 `;
 
 export const BoxModal = styled.View`
-  flex: 1;
   justify-content: center;
   align-items: center;
 `;
@@ -77,7 +76,7 @@ export const ModalView = styled.View`
   padding: 35px;
   background-color: ${props => props.theme.colors.secondary};
   height: 85%;
-  elevation: 30;
+  elevation: 5;
 `;
 
 export const Img1 = styled.Image`
@@ -93,6 +92,7 @@ export const Flat = styled.FlatList``;
 export const BoxFlat = styled.View`
   background-color: ${props => props.theme.colors.secondary};
   align-items: center;
+  width: 100%;
 `;
 
 export const BoxSunday = styled.View`
@@ -101,7 +101,7 @@ export const BoxSunday = styled.View`
   background-color: ${props => props.theme.colors.white};
   border-radius: 15px;
   margin-top: 100px;
-  elevation: 30;
+  elevation: 5;
   align-items: center;
   justify-content: center;
 `;
@@ -110,7 +110,7 @@ export const BoxSelectTime = styled.View``;
 
 export const SelectedTime = styled.TouchableOpacity`
   background-color: ${props => props.theme.colors.white};
-  elevation: 30;
+  elevation: 5;
   width: 25%;
   align-items: center;
   border-radius: 10px;

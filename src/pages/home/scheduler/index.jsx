@@ -8,12 +8,12 @@ import * as Styled from './styles';
 import {Title} from '../../../components/title';
 import Button from '../../../components/button';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Toast from 'react-native-toast-message';
 
 export default function Scheduler() {
-  // const navigation = useNavigation();
   const [date, setDate] = useState(new Date());
   const options = {weekday: 'long', timeZone: 'UTC'};
-
+  const [uid, setUid] = useState();
   const [open, setOpen] = useState(false);
   const [profissionais, setProfissionais] = useState('');
   const [services, setServices] = useState();
@@ -34,11 +34,28 @@ export default function Scheduler() {
       setSelectedTime(item);
     }
   };
-  const formattedDate = format(date, 'dd/MM/yyyy');
+  const formattedDate = format(date, 'dd-MM-yyyy');
+  const formattedSend = format(date, 'yyyy-MM-dd');
 
   useEffect(() => {
     updateAvailableTimesByDate();
+    teste();
   }, [date, chose, selectedDayOfWeek]);
+
+  async function teste() {
+    try {
+      const storedUserJSON = await AsyncStorage.getItem('infos');
+      if (storedUserJSON) {
+        const storedUser = JSON.parse(storedUserJSON);
+        const uidata = storedUser.uid;
+        setUid(uidata);
+      } else {
+        console.log('Nenhum dado armazenado em "infos".');
+      }
+    } catch (error) {
+      console.error('Erro ao obter e analisar os dados: ', error);
+    }
+  }
 
   useEffect(() => {
     firestore()
@@ -54,7 +71,6 @@ export default function Scheduler() {
           };
           profissionaisData.push(profissional);
         });
-
         setProfissionais(profissionaisData);
       })
       .catch(error => {
@@ -65,7 +81,7 @@ export default function Scheduler() {
       });
 
     firestore()
-      .collection('serviços')
+      .collection('services')
       .get()
       .then(querySnapshot => {
         const servicesData = [];
@@ -81,102 +97,110 @@ export default function Scheduler() {
         setServices(servicesData);
       })
       .catch(error => {
-        console.error(
-          'Erro ao consultar o Firestore para os serviços: ',
-          error,
-        );
+        Toast.show({
+          type: 'ErrorBD',
+        });
       });
   }, [selectedDayOfWeek]);
 
   const order = {
-    dia: formattedDate,
-    hora: selectedTime,
-    preço: choseService.preço,
-    profissional: chose?.profissionais,
-    serviço: choseService.serviços,
-    semana: selectedDayOfWeek,
+    day: formattedSend,
+    hour: selectedTime,
+    price: choseService.price,
+    professional: chose?.professional,
+    services: choseService.services,
+    week: selectedDayOfWeek,
+    uid: uid,
+    uidPro: chose?.uid,
   };
 
-  const Envio = () => {
-    const collectionRef = firestore().collection('agendados');
-    const query = collectionRef
-      .where('profissional', '==', order.profissional)
-      .where('dia', '==', order.dia)
-      .where('hora', '==', order.hora);
+  const Send = () => {
+    const collectionRef = firestore().collection('scheduled');
     const horarioParaVerificar = selectedTime;
 
-    let horarioNaoExiste = false;
+    if (chose && chose.professional === order.professional) {
+      const scheduleData = chose.scheduleData;
+      let horarioNaoExiste = true;
 
-    firestore()
-      .collection('profissionais')
-      .where(selectedDayOfWeek, 'array-contains', horarioParaVerificar)
-      .get()
-      .then(querySnapshot => {
-        if (querySnapshot.size === 0) {
-          console.log('Horário não existe na coleção "profissionais".');
-          horarioNaoExiste = true;
-          getPro(chose?.id);
+      if (scheduleData.hasOwnProperty(order.week)) {
+        const horariosDisponiveisNoDia = scheduleData[order.week];
+
+        if (horariosDisponiveisNoDia.includes(order.hour)) {
+          horarioNaoExiste = false;
         } else {
-          console.log('Horário existe na coleção "profissionais".');
+          Toast.show({
+            type: 'ErrorAdd',
+          });
         }
-
-        if (!horarioNaoExiste) {
-          query
-            .get()
-            .then(querySnapshot => {
-              if (!querySnapshot.empty) {
-                console.log('Já existe um documento com os mesmos valores.');
-              } else {
-                collectionRef
-                  .add({order})
-                  .then(() => {
-                    console.log('Pedido adicionado com sucesso!');
-
-                    if (chose) {
-                      const fieldName = selectedDayOfWeek;
-                      const updatedHorarios = chose
-                        ? (chose[fieldName] || []).filter(
-                            horario => horario !== selectedTime,
-                          )
-                        : [];
-                      const updatedChose = {
-                        ...chose,
-                        [fieldName]: updatedHorarios,
-                      };
-
-                      setChose(updatedChose);
-
-                      firestore()
-                        .collection('profissionais')
-                        .doc(chose?.id)
-                        .update(updatedChose)
-                        .then(() => {
-                          console.log(
-                            'Horário removido com sucesso do Firestore.',
-                          );
-                        })
-                        .catch(error => {
-                          console.error(
-                            'Erro ao atualizar o Firestore:',
-                            error,
-                          );
-                        });
-                    }
-                  })
-                  .catch(error => {
-                    console.error('Erro ao adicionar o pedido:', error);
+      } else {
+        Toast.show({
+          type: 'ErrorSche',
+        });
+      }
+      if (!horarioNaoExiste) {
+        collectionRef
+          .where('profissional', '==', order.professional)
+          .where('dia', '==', order.day)
+          .where('hora', '==', order.hour)
+          .get()
+          .then(querySnapshot => {
+            if (!querySnapshot.empty) {
+              Toast.show({
+                type: 'ErrorAdd',
+              });
+            } else {
+              collectionRef
+                .add(order)
+                .then(() => {
+                  Toast.show({
+                    type: 'ScheduledAdd',
                   });
-              }
-            })
-            .catch(error => {
-              console.error('Erro ao consultar o Firestore:', error);
-            });
-        }
-      })
-      .catch(error => {
-        console.error('Erro ao consultar o Firestore:', error);
+                  if (chose) {
+                    const fieldName = selectedDayOfWeek;
+                    const updatedHorarios = (
+                      chose.scheduleData[fieldName] || []
+                    ).filter(horario => horario !== selectedTime);
+                    const updatedChose = {
+                      ...chose,
+                      scheduleData: {
+                        ...chose.scheduleData,
+                        [fieldName]: updatedHorarios,
+                      },
+                    };
+                    setChose(updatedChose);
+
+                    firestore()
+                      .collection('profissionais')
+                      .doc(chose?.id)
+                      .update(updatedChose)
+                      .then(() => {
+                        console.log(
+                          'Horário removido com sucesso do Firestore.',
+                        );
+                      })
+                      .catch(error => {
+                        console.error('Erro ao atualizar o Firestore:', error);
+                      });
+                  }
+                })
+                .catch(error => {
+                  Toast.show({
+                    type: 'ErrorAdd1',
+                  });
+                });
+            }
+          })
+          .catch(error => {
+            console.error('Erro ao consultar o Firestore:', error, order);
+          });
+
+        updateAvailableTimes(chose);
+      }
+    } else {
+      Toast.show({
+        type: 'ErrorSche',
       });
-    updateAvailableTimes();
+    }
   };
 
   const getPro = profissionalId => {
@@ -188,13 +212,11 @@ export default function Scheduler() {
         if (documentSnapshot.exists) {
           const profissionalData = documentSnapshot.data();
           const horariosDisponiveis = profissionalData.sele || [];
-
           setChose({
             ...chose,
-            [selectedDayOfWeek.toLowerCase()]: horariosDisponiveis,
+            ['scheduleData.' + selectedDayOfWeek.toLowerCase()]:
+              horariosDisponiveis,
           });
-        } else {
-          console.log('Profissional não encontrado no Firestore.');
         }
       })
       .catch(error => {
@@ -221,6 +243,7 @@ export default function Scheduler() {
     if (profissional.scheduleData[selectedDay]) {
       const times = profissional.scheduleData[selectedDay];
       setAvailableTimes(times);
+      getPro();
     } else {
       setAvailableTimes([]);
     }
@@ -235,7 +258,7 @@ export default function Scheduler() {
             setModalVisible1(!modalVisible1);
           }}>
           <Title
-            text={`${item?.serviços} R$ ${item?.preço}`}
+            text={`${item?.services} R$ ${item?.price}`}
             size="xsmall"
             family="bold"
           />
@@ -265,7 +288,6 @@ export default function Scheduler() {
   useEffect(() => {
     setAvailableTimes(OrderTimes);
   }, [OrderTimes]);
-
   return (
     <Styled.Container>
       <Styled.Touch onPress={() => setOpen(true)}>
@@ -273,7 +295,7 @@ export default function Scheduler() {
         <Title
           text={formattedDate ? formattedDate : ''}
           size="xsmall"
-          family="regular"
+          family="bold"
           marginRight="small"
         />
       </Styled.Touch>
@@ -318,9 +340,9 @@ export default function Scheduler() {
             disabled={disable || selectedDayOfWeek === 'domingo'}>
             <Title text="Escolha o profissional: " size="small" family="bold" />
             <Title
-              text={'' || chose?.profissionais}
+              text={'' || chose?.professional}
               size="xsmall"
-              family="regular"
+              family="bold"
               marginRight="small"
             />
           </Styled.Touch>
@@ -331,11 +353,11 @@ export default function Scheduler() {
             <Title
               text={
                 choseService
-                  ? `${choseService.serviços} R$ ${choseService.preço}`
+                  ? `${choseService.services} R$ ${choseService.price}`
                   : ''
               }
               size="xsmall"
-              family="regular"
+              family="bold"
               marginRight="medium"
             />
           </Styled.Touch>
@@ -364,14 +386,13 @@ export default function Scheduler() {
             <Styled.BoxResume>
               <Styled.BoxLogo>
                 <Title
-                  text="Resumo"
+                  text={chose?.professional}
                   size="medium"
                   family="bold"
                   marginTop="xxnano"
+                  marginLeft="xxnano"
                 />
-                <Styled.Img
-                  source={require('../../../../assets/img/logo.png')}
-                />
+                <Styled.Img source={{uri: chose?.img}} />
               </Styled.BoxLogo>
               <Styled.BoxInfos>
                 <Title
@@ -381,7 +402,7 @@ export default function Scheduler() {
                   marginBottom="nano"
                 />
                 <Title
-                  text={choseService ? `R$ ${choseService.preço}` : ''}
+                  text={choseService ? `R$ ${choseService?.price}` : ''}
                   size="xsmall"
                   family="regular"
                   marginRight="medium"
@@ -399,7 +420,7 @@ export default function Scheduler() {
               <Button
                 colorButton="error"
                 text="Agendar"
-                onPress={() => Envio()}
+                onPress={() => Send()}
               />
             </Styled.BoxButton>
           </Styled.ScrollTime>
@@ -428,7 +449,7 @@ export default function Scheduler() {
                           updateAvailableTimes(profissional);
                         }}>
                         <Title
-                          text={profissional.profissionais}
+                          text={profissional.professional}
                           size="large"
                           family="bold"
                         />
@@ -448,7 +469,6 @@ export default function Scheduler() {
           </Styled.BoxModal>
           <Styled.BoxModal>
             <Styled.Modal
-              animationType="slide"
               transparent={true}
               visible={modalVisible1}
               onRequestClose={() => {

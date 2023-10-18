@@ -3,23 +3,36 @@ import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as yup from 'yup';
-import {yupResolver} from '@hookform/resolvers/yup';
-import {useForm} from 'react-hook-form';
+import Toast from 'react-native-toast-message';
 
 import {Title} from '../../../components/title';
 import Button from '../../../components/button';
-import InputForm from '../../../components/form/input/form';
 
 import * as Styled from './styles';
 
 export default function Profile() {
   const navigation = useNavigation();
   const [user, setUser] = useState(null);
+  const [dados, setDados] = useState(null);
   const [infos, setInfos] = useState(null);
+  const [uid, setUid] = useState();
   const [modalVisible, setModalVisible] = useState(false);
-  const [modalVisible1, setModalVisible1] = useState(false);
-  const [modalVisible2, setModalVisible2] = useState(false);
+
+  // const showToast = () => {
+  //   Toast.show({
+  //     type: 'error',
+  //     text1: 'Feito!',
+  //     text2: 'O item foi removido da sua agenda!',
+  //   });
+  // };
+
+  useEffect(() => {
+    const subscriber = auth().onAuthStateChanged(async loggedInUser => {
+      setDados(loggedInUser);
+    });
+
+    return subscriber;
+  }, []);
 
   const fetchUserInfo = async () => {
     try {
@@ -36,8 +49,12 @@ export default function Profile() {
           .where('uid', '==', sanitizedUid)
           .get();
 
-        const infoData = infoSnapshot.docs[0]._data;
-        setUser(infoData);
+        if (!infoSnapshot.empty) {
+          const infoData = infoSnapshot.docs[0]._data;
+          setUser(infoData);
+        } else {
+          setUser(null);
+        }
       }
     } catch (error) {
       console.error('Erro ao consultar o Firestore:', error);
@@ -46,80 +63,50 @@ export default function Profile() {
 
   useFocusEffect(
     React.useCallback(() => {
+      const loadUid = async () => {
+        const storedUser = await AsyncStorage.getItem('user');
+        const sanitizedUid = storedUser.replace(/"/g, '');
+        setUid(sanitizedUid);
+      };
       fetchUserInfo();
+      loadUid();
     }, []),
   );
-
-  const signUpSchema = yup.object({
-    email: yup
-      .string()
-      .required('Preencha este campo')
-      .email('Digite um E-mail valido'),
-  });
-
-  const {
-    control,
-    handleSubmit,
-    watch,
-    formState: {errors},
-  } = useForm({
-    resolver: yupResolver(signUpSchema),
-  });
-
-  const email = watch('email');
 
   function handleSignOut() {
     auth()
       .signOut()
       .then(() => {
-        alert('Você foi deslogado, para a alteração de e-mail!');
         setUser(null);
+        AsyncStorage.clear();
+        Toast.show({
+          type: 'LogoutSuccess',
+        });
       })
       .catch(error => {
         console.error('Erro ao fazer logout:', error);
       });
   }
 
-  function handleForgetPass() {
-    auth()
-      .sendPasswordResetEmail(infos?.email)
-      .catch(error => console.log(error));
-  }
-
-  function changeEmail(newEmail) {
-    const i = auth().currentUser;
-    if (i) {
-      i.updateEmail(newEmail)
-        .then(() => {
-          auth()
-            .signOut()
-            .then(() => {
-              setUser(null);
-            })
-            .catch(error => {
-              console.error('Erro ao fazer logout:', error);
-            });
-        })
-        .catch(error => {
-          console.error('Erro ao atualizar o email:', error);
-        });
-    } else {
-      console.error('Nenhum usuário autenticado.');
-    }
-  }
-
   return (
     <Styled.Container>
-      <Styled.Body>
+      <Styled.Header>
+        <Styled.Logo source={require('../../../../assets/img/logo.png')} />
+        <Title text={`Perfil `} color="dark" size="large" marginTop="medium" />
+      </Styled.Header>
+      <Styled.BoxProfilePic>
+        <Styled.ProfilePic source={{uri: user?.photoUrl}} />
         <Title
-          text={`Bem Vindo ${user?.name}`}
-          color="dark"
-          size="large"
-          marginTop="medium"
+          text={user?.name}
+          size="medium"
+          family="bold"
+          marginBottom="medium"
         />
-
+      </Styled.BoxProfilePic>
+      <Styled.Body>
         <Styled.Touch onPress={() => setModalVisible(!modalVisible)}>
           <Title text="Dados pessoais" size="medium" />
+          <Styled.Icon source={require('../../../../assets/img/next.png')} />
         </Styled.Touch>
         <Styled.Modal
           animationType="slide"
@@ -133,19 +120,21 @@ export default function Profile() {
               <Title text="Dados:" size="medium" family="bold" />
               <Styled.InfoDados>
                 <Title text="Nome: " />
-                <Title text={user?.name} family="bold" size="medium" />
+                {user?.admin === true ? (
+                  <Title text={`${user?.name}`} family="bold" size="medium" />
+                ) : (
+                  <Title
+                    text={`${dados?.displayName}`}
+                    family="bold"
+                    size="medium"
+                  />
+                )}
               </Styled.InfoDados>
               <Styled.InfoDados>
-                <Title text={`Tel: `} />
+                <Title text={`Tel:${dados?.phone || ''} `} />
                 <Title text={user?.phone} family="bold" size="medium" />
               </Styled.InfoDados>
-              <Styled.Touch>
-                <Title
-                  text="Deseja alterar algum dado? Clique aqui!"
-                  family="bold"
-                  size="small"
-                />
-              </Styled.Touch>
+
               <Button
                 text="Voltar"
                 colorButton="error"
@@ -155,56 +144,16 @@ export default function Profile() {
             </Styled.ModalView>
           </Styled.BoxModal>
         </Styled.Modal>
-        <Styled.Touch
-          onPress={() => handleForgetPass(setModalVisible1(!modalVisible1))}>
-          <Title text="Alterar Senha" size="medium" />
-        </Styled.Touch>
-        <Styled.Touch
-          onPress={() => {
-            // changeEmail('2@Teste.com');
-            setModalVisible2(!modalVisible2);
-          }}>
-          <Title text="Alterar E-mail" size="medium" />
-        </Styled.Touch>
+        {user?.admin ? (
+          <Styled.Touch
+            onPress={() => {
+              navigation.navigate('MyScheduleAdmin');
+            }}>
+            <Title text="Monte sua agenda" size="medium" />
+            <Styled.Icon source={require('../../../../assets/img/next.png')} />
+          </Styled.Touch>
+        ) : null}
 
-        <Styled.Modal
-          animationType="slide"
-          transparent={true}
-          visible={modalVisible2}
-          onRequestClose={() => {
-            setModalVisible2(!modalVisible2);
-          }}>
-          <Styled.BoxModal>
-            <Styled.ModalView>
-              <InputForm
-                label="Qual o novo e-mail?"
-                placeholder="Digite aqui..."
-                control={control}
-                name={'email'}
-                size="100%"
-                color="black"
-                errorMsg={errors?.email?.message}
-              />
-
-              <Styled.BT>
-                <Button
-                  text="Confirmar"
-                  size={50}
-                  colorButton="success"
-                  border="secondary"
-                  onPress={() => changeEmail(email)}
-                />
-
-                <Button
-                  text="Voltar"
-                  colorButton="error"
-                  size={50}
-                  onPress={() => setModalVisible2(!modalVisible2)}
-                />
-              </Styled.BT>
-            </Styled.ModalView>
-          </Styled.BoxModal>
-        </Styled.Modal>
         <Styled.Touch onPress={handleSignOut}>
           <Title text=" Sair" color="error" family="bold" size="medium" />
         </Styled.Touch>
