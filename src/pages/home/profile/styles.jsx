@@ -35,7 +35,7 @@ export const Touch1 = styled.TouchableOpacity`
   height: 40px;
   border-radius: 15px;
   background-color: white;
-  elevation: 20;
+  elevation: 5;
   justify-content: center;
   margin-top: 30px;
   padding-left: 20px;
@@ -47,7 +47,7 @@ export const InfoDados = styled.View`
   height: 40px;
   border-radius: 15px;
   background-color: white;
-  elevation: 20;
+  elevation: 5;
   margin-top: 30px;
   padding-left: 20px;
   flex-direction: row;
@@ -66,7 +66,7 @@ export const ModalView = styled.View`
   padding: 35px;
   background-color: ${props => props.theme.colors.secondary};
   height: 85%;
-  elevation: 30;
+  elevation: 5;
 `;
 
 export const BoxInput = styled.View`
@@ -88,8 +88,14 @@ export const Logo = styled.Image`
   height: 70px;
 `;
 export const Icon = styled.Image`
-  width: 10px;
-  height: 10px;
+  width: 13px;
+  height: 13px;
   object-fit: contain;
   margin-right: 5%;
+  margin-top: 5px;
+`;
+
+export const BoxBT = styled.View`
+  width: 100%;
+  margin-top: 30px;
 `;

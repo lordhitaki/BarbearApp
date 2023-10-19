@@ -2,12 +2,15 @@ import React, {useEffect, useState} from 'react';
 import firestore from '@react-native-firebase/firestore';
 import {ActivityIndicator} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Toast from 'react-native-toast-message';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
 
 import {Title} from '../../../../components/title';
 import Button from '../../../../components/button';
 
 import * as Styled from './styles';
-import {useFocusEffect} from '@react-navigation/native';
+
+import Back from '../../../../../assets/img/back';
 
 export default function MyScheduleAdminP() {
   const [schedules, setSchedules] = useState();
@@ -16,6 +19,7 @@ export default function MyScheduleAdminP() {
   const [selectedButton, setSelectedButton] = useState('');
   const [isDaySelected, setIsDaySelected] = useState({});
   const [selectedDaySchedules, setSelectedDaySchedules] = useState({});
+  const navigation = useNavigation();
 
   const dayMapping = {
     Seg: 'segunda-feira',
@@ -182,7 +186,12 @@ export default function MyScheduleAdminP() {
               .doc(doc.id)
               .update({scheduleData})
               .then(() => {
-                console.log('Agendamentos atualizados com sucesso!');
+                Toast.show({
+                  type: 'ScheduledSuccess',
+                });
+                navigation.navigate('Home', {
+                  screen: 'Perfil',
+                });
               })
               .catch(error => {
                 console.error('Erro ao atualizar agendamentos:', error);
@@ -193,7 +202,9 @@ export default function MyScheduleAdminP() {
             .collection('profissionais')
             .add({scheduleData})
             .then(() => {
-              console.log('Agendamentos adicionados com sucesso!');
+              Toast.show({
+                type: 'ScheduledSuccess',
+              });
             })
             .catch(error => {
               console.error('Erro ao adicionar agendamentos:', error);
@@ -268,7 +279,7 @@ export default function MyScheduleAdminP() {
               )}
             </Styled.Hours>
             <Button
-              text="Alou"
+              text="Criar agenda"
               onPress={() => sendSchedules()}
               border="error"
               colorButton="error"
@@ -283,12 +294,12 @@ export default function MyScheduleAdminP() {
 
   return (
     <Styled.Container>
-      <Title
-        text="Monte sua agenda!"
-        marginTop="medium"
-        size="large"
-        family="bold"
-      />
+      <Styled.Header>
+        <Styled.Touch onPress={() => navigation.goBack()}>
+          <Back />
+        </Styled.Touch>
+        <Title text="Monte sua agenda!" size="large" family="bold" />
+      </Styled.Header>
       <Styled.BoxSelec>
         <Title
           text="Selecione um ou mais dias para começar!"

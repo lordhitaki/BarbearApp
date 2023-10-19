@@ -8,6 +8,7 @@ import {Title} from '../../../../components/title';
 
 import * as Styled from './styles';
 import Button from '../../../../components/button';
+import Toast from 'react-native-toast-message';
 
 export default function MyScheduleUser() {
   const [user, setUser] = useState();
@@ -47,6 +48,9 @@ export default function MyScheduleUser() {
     try {
       await firestore().collection('scheduled').doc(taskId).delete();
       fetchUserInfo();
+      Toast.show({
+        type: 'CancelOrder',
+      });
     } catch (error) {
       console.error('Erro ao excluir a tarefa:', error);
     }
@@ -78,7 +82,7 @@ export default function MyScheduleUser() {
       style: 'currency',
       currency: 'BRL',
     }).format(item.price);
-
+    console.log(selectedInfo);
     return (
       <Styled.BoxFlat
         key={index}
@@ -94,28 +98,23 @@ export default function MyScheduleUser() {
         <Styled.BoxText>
           <Title
             text="Serviço:"
-            size="medium"
+            size="xxnano"
             marginLeft="medium"
             marginTop="xnano"
           />
           <Title
             text={item.services}
-            size="medium"
+            size="xxnano"
             family="bold"
             marginLeft="xxnano"
             marginTop="xnano"
           />
         </Styled.BoxText>
         <Styled.BoxText>
-          <Title
-            text="Dia:"
-            size="medium"
-            marginLeft="medium"
-            marginTop="xxnano"
-          />
+          <Title text="Dia:" xxnano marginLeft="medium" marginTop="xxnano" />
           <Title
             text={formattedDate}
-            size="medium"
+            xxnano
             family="bold"
             marginLeft="medium"
             marginTop="xxnano"
@@ -130,7 +129,7 @@ export default function MyScheduleUser() {
               <Styled.BoxLogo>
                 <Title
                   text={selectedInfo?.professional}
-                  size="medium"
+                  xxnano
                   family="bold"
                   marginTop="nano"
                   marginBottom="nano"
@@ -145,16 +144,25 @@ export default function MyScheduleUser() {
                     text={formattedPrice}
                     marginRight="huge"
                     family="bold"
-                    size="medium"
+                    xxnano
                   />
                 </Styled.BoxText1>
                 <Styled.BoxText1>
-                  <Title text="Hora: " size="medium" />
+                  <Title text="Hora: " size="xxnano" />
                   <Title
                     text={selectedInfo?.hour}
                     // marginRight="huge"
                     family="bold"
-                    size="medium"
+                    size="xxnano"
+                  />
+                </Styled.BoxText1>
+                <Styled.BoxText1>
+                  <Title text="Serviço: " size="xxnano" />
+                  <Title
+                    text={selectedInfo?.services}
+                    // marginRight="huge"
+                    family="bold"
+                    size="xxnano"
                   />
                 </Styled.BoxText1>
               </Styled.BoxText2>
@@ -188,7 +196,7 @@ export default function MyScheduleUser() {
     <Styled.Container>
       <Title
         text="Minha agenda"
-        size="medium"
+        size="xsmall"
         family="bold"
         marginTop="medium"
       />

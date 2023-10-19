@@ -134,13 +134,14 @@ export default function Profile() {
                 <Title text={`Tel:${dados?.phone || ''} `} />
                 <Title text={user?.phone} family="bold" size="medium" />
               </Styled.InfoDados>
-
-              <Button
-                text="Voltar"
-                colorButton="error"
-                size={100}
-                onPress={() => setModalVisible(!modalVisible)}
-              />
+              <Styled.BoxBT>
+                <Button
+                  text="Voltar"
+                  colorButton="error"
+                  size={100}
+                  onPress={() => setModalVisible(!modalVisible)}
+                />
+              </Styled.BoxBT>
             </Styled.ModalView>
           </Styled.BoxModal>
         </Styled.Modal>

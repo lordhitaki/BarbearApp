@@ -7,13 +7,16 @@ export const Container = styled.View`
   align-items: center;
 `;
 
-export const Touch = styled.TouchableOpacity``;
+export const Touch = styled.TouchableOpacity`
+  position: absolute;
+  left: 10px;
+`;
 
 export const BoxSelec = styled.View`
   width: 90%;
   height: 20%;
   background-color: white;
-  elevation: 20;
+  elevation: 5;
   margin-top: 30px;
   border-radius: 15px;
   justify-content: center;
@@ -24,13 +27,13 @@ export const BoxWeek = styled.View`
   justify-content: center;
   align-items: center;
   margin-top: 30px;
-  gap: 20px;
+  gap: 12px;
   padding-bottom: 10px;
 `;
 
 export const TouchCheck = styled.TouchableOpacity`
   border-radius: 10px;
-  width: 40px;
+  width: 13%;
   border-width: 1px;
   border-color: #fc0137;
   align-items: center;
@@ -64,7 +67,7 @@ export const Hours = styled.View`
 
 export const TouchHour = styled.TouchableOpacity`
   background-color: ${props => props.theme.colors.white};
-  elevation: 30;
+  elevation: 5;
   width: 25%;
   align-items: center;
   justify-content: center;
@@ -73,4 +76,12 @@ export const TouchHour = styled.TouchableOpacity`
   margin-top: 10px;
   border-width: 1px;
   border-color: red;
+`;
+
+export const Header = styled.View`
+  flex-direction: row;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
 `;

@@ -78,7 +78,7 @@ const ToastConfig = {
         marginTop="nano"
       />
       <Title
-        text="Já existe um agendamento neste horario, por favor selecione outro!"
+        text="Selecione um profissional, serviço e horário para agendar!"
         align="center"
       />
     </Styled.BoxToastError>
@@ -138,6 +138,30 @@ const ToastConfig = {
         marginTop="nano"
       />
       <Title text="Você foi deslogado " align="center" />
+    </Styled.BoxToastSuccess>
+  ),
+  CancelOrder: props => (
+    <Styled.BoxToastSuccess>
+      <Title
+        text="Feito"
+        align="center"
+        family="bold"
+        size="medium"
+        marginTop="nano"
+      />
+      <Title text="Agendamento cancelado!" align="center" />
+    </Styled.BoxToastSuccess>
+  ),
+  ScheduledSuccess: props => (
+    <Styled.BoxToastSuccess>
+      <Title
+        text="Feito"
+        align="center"
+        family="bold"
+        size="medium"
+        marginTop="nano"
+      />
+      <Title text="Agenda atualizada com sucesso" align="center" />
     </Styled.BoxToastSuccess>
   ),
 };

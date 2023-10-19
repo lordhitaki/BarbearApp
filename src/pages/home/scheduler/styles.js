@@ -17,10 +17,11 @@ export const Touch = styled.TouchableOpacity`
   margin-top: 30px;
   padding-left: 20px;
   border-radius: 30px;
+  overflow: hidden;
 `;
 export const Touch1 = styled.TouchableOpacity`
   flex-direction: row;
-  height: 100px;
+  height: 15%;
   width: 100%;
   background-color: ${props => props.theme.colors.white};
   align-items: center;
@@ -80,8 +81,8 @@ export const ModalView = styled.View`
 `;
 
 export const Img1 = styled.Image`
-  width: 100px;
-  height: 100px;
+  width: 23%;
+  height: 100%;
   object-fit: contain;
   border-top-right-radius: 30px;
   border-bottom-right-radius: 30px;
