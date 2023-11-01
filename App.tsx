@@ -10,7 +10,7 @@ import {ThemeProvider} from './src/theme/theme';
 function App() {
   return (
     <ThemeProvider>
-      <StatusBar backgroundColor={'black'} />
+      <StatusBar backgroundColor={'#DCDCDC'} barStyle={'dark-content'} />
       <NavigationContainer>
         <Routes />
       </NavigationContainer>

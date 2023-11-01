@@ -82,7 +82,6 @@ export default function MyScheduleUser() {
       style: 'currency',
       currency: 'BRL',
     }).format(item.price);
-    console.log(selectedInfo);
     return (
       <Styled.BoxFlat
         key={index}

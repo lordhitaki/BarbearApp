@@ -19,7 +19,7 @@ export const BoxBTN = styled.View`
 
 export const BoxAdm = styled.View`
   flex-direction: row;
-  margin-top: 20px;
+  margin-top: ${props => props.theme.spacings.xsmall};
 `;
 
 export const Touch = styled.TouchableOpacity``;

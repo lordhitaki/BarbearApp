@@ -32,6 +32,7 @@ export default function Home() {
       if (!infoSnapshot.empty) {
         const infoData = infoSnapshot.docs[0].data();
         setUser(infoData);
+
         if (infoData.phone !== null) {
           setPhoneAdded(true);
         }
@@ -67,7 +68,7 @@ export default function Home() {
   } = useForm({
     resolver: yupResolver(signUpSchema),
     defaultValues: {
-      phone: '11111111111',
+      phone: '',
     },
   });
   const phone = formatPhoneNumber(watch('phone'));
@@ -86,6 +87,7 @@ export default function Home() {
     const querySnapshot = await infosCollection
       .where('uid', '==', user.uid)
       .get();
+
     if (!querySnapshot.empty) {
       const docRef = querySnapshot.docs[0].ref;
       await docRef.update(InfosRegister);

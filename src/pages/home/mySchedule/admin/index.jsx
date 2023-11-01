@@ -42,14 +42,6 @@ export default function ExpandableCalendarScreen(props: Props) {
   const [selectedItem, setSelectedItem] = useState(null);
   const [selectedItemInfo, setSelectedItemInfo] = useState(null);
 
-  const showToast = () => {
-    Toast.show({
-      type: 'success',
-      text1: 'Aqui Foi',
-      text2: 'O item foi removido da sua agenda!',
-    });
-  };
-
   const todayBtnTheme = useRef({
     todayButtonTextColor: themeColor,
   });
@@ -63,7 +55,7 @@ export default function ExpandableCalendarScreen(props: Props) {
       'Maio',
       'Junho',
       'Julho',
-      'Agost',
+      'Agosto',
       'Setembro',
       'Outubro',
       'Novembro',
@@ -92,7 +84,7 @@ export default function ExpandableCalendarScreen(props: Props) {
       'Sabado',
       'Domingo',
     ],
-    dayNamesShort: ['Seg.', 'Ter.', 'Qua.', 'Qui.', 'Sex.', 'Sab.', 'Dom.'],
+    dayNamesShort: ['Dom.', 'Seg.', 'Ter.', 'Qua.', 'Qui.', 'Sex.', 'Sab.'],
     today: 'Hoje',
   };
 
@@ -163,13 +155,23 @@ export default function ExpandableCalendarScreen(props: Props) {
   };
 
   const deleteTask = async taskId => {
-    try {
-      await firestore().collection('scheduled').doc(taskId).delete();
-      fetchSchedule();
-      showToast();
-    } catch (error) {
-      console.error('Erro ao excluir a tarefa:', error);
-    }
+    await firestore()
+      .collection('done')
+      .add(taskId)
+      .then(() => {
+        Toast.show({
+          type: 'success',
+        });
+        try {
+          firestore().collection('scheduled').doc(taskId.id).delete();
+          fetchSchedule();
+        } catch (error) {
+          console.error('Erro ao excluir a tarefa:', error);
+        }
+      })
+      .catch(error => {
+        console.error('Erro ao adicionar agendamentos:', error);
+      });
   };
 
   const sortItemsByDate = (a, b) => {
@@ -184,11 +186,14 @@ export default function ExpandableCalendarScreen(props: Props) {
           title: item.day,
           data: [
             {
+              date: item.day,
               hour: item.hour,
               duration: '30m',
-              title: item.services,
+              title: [item.services],
               uid: item.uid,
+              uidPro: item.uidPro,
               id: item.id,
+              price: [item.price],
             },
           ],
         }))
@@ -239,27 +244,28 @@ export default function ExpandableCalendarScreen(props: Props) {
             visible={modalVisible}
             onRequestClose={() => setModalVisible(false)}>
             <Styled.BoxModal>
-              <Styled.IMG source={{uri: selectedItemInfo?.photoUrl}} />
+              <Styled.BoxFuck>
+                <Styled.IMG source={{uri: selectedItemInfo?.photoUrl}} />
 
-              <Styled.BoxDescriptionClient>
-                <Title
-                  text={selectedItemInfo?.name}
-                  size="medium"
-                  family="bold"
-                  align="center"
-                  marginTop="medium"
-                />
-
-                <Styled.BoxDescription>
-                  <Title text="Tel.: " size="medium" />
+                <Styled.BoxDescriptionClient>
                   <Title
-                    text={selectedItemInfo?.phone}
+                    text={selectedItemInfo?.name}
                     size="medium"
                     family="bold"
+                    align="center"
+                    marginTop="medium"
                   />
-                </Styled.BoxDescription>
-              </Styled.BoxDescriptionClient>
 
+                  <Styled.BoxDescription>
+                    <Title text="Tel.: " size="medium" />
+                    <Title
+                      text={selectedItemInfo?.phone}
+                      size="medium"
+                      family="bold"
+                    />
+                  </Styled.BoxDescription>
+                </Styled.BoxDescriptionClient>
+              </Styled.BoxFuck>
               <Styled.BoxBt>
                 <Button
                   text="Feito"
@@ -267,7 +273,7 @@ export default function ExpandableCalendarScreen(props: Props) {
                   colorButton="error"
                   onPress={async () => {
                     if (selectedItem) {
-                      await deleteTask(selectedItem.id);
+                      await deleteTask(selectedItem);
                     }
                     setModalVisible(!modalVisible);
                   }}

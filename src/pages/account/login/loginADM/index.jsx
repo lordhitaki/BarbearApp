@@ -43,7 +43,6 @@ export default function LoginAdm() {
   };
 
   function handleLogin() {
-    console.log('aqui');
     auth()
       .signInWithEmailAndPassword(email, password)
       .then(() => {

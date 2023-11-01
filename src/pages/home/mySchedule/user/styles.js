@@ -27,8 +27,9 @@ export const BoxText = styled.View`
 `;
 export const BoxText1 = styled.View`
   flex-direction: row;
-  margin-top: 20px;
+  margin-top: ${props => props.theme.spacings.xsmall};
 `;
+
 export const BoxText2 = styled.View`
   flex-direction: column;
 `;
@@ -58,7 +59,7 @@ export const BoxBt = styled.View`
 
 export const BoxInfos = styled.View`
   margin-right: 30px;
-  margin-top: 15px;
+  ${props => props.theme.spacings.small}
   justify-content: space-around;
 `;
 

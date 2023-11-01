@@ -181,10 +181,26 @@ export default function MyScheduleAdminP() {
       .then(querySnapshot => {
         if (!querySnapshot.empty) {
           querySnapshot.forEach(doc => {
+            const existingScheduleData = doc.data().scheduleData || {};
+            const updatedScheduleData = {...existingScheduleData};
+
+            for (const dia in scheduleData) {
+              if (updatedScheduleData[dia]) {
+                updatedScheduleData[dia] = [
+                  ...new Set([
+                    ...updatedScheduleData[dia],
+                    ...scheduleData[dia],
+                  ]),
+                ];
+              } else {
+                updatedScheduleData[dia] = scheduleData[dia];
+              }
+            }
+
             firestore()
               .collection('profissionais')
               .doc(doc.id)
-              .update({scheduleData})
+              .update({scheduleData: updatedScheduleData})
               .then(() => {
                 Toast.show({
                   type: 'ScheduledSuccess',

@@ -14,7 +14,7 @@ export const Touch = styled.TouchableOpacity`
   background-color: ${props => props.theme.colors.white};
   align-items: center;
   justify-content: space-between;
-  margin-top: 30px;
+  margin-top: ${props => props.theme.spacings.xlarge};
   padding-left: 20px;
   border-radius: 30px;
   overflow: hidden;
@@ -26,7 +26,7 @@ export const Touch1 = styled.TouchableOpacity`
   background-color: ${props => props.theme.colors.white};
   align-items: center;
   justify-content: space-between;
-  margin-top: 30px;
+  margin-top: ${props => props.theme.spacings.xlarge};
   padding-left: 20px;
   border-radius: 30px;
   elevation: 5;
@@ -37,18 +37,18 @@ export const BoxResume = styled.View`
   width: 90%;
   background-color: ${props => props.theme.colors.white};
   border-radius: 15px;
-  margin-top: 30px;
+  margin-top: ${props => props.theme.spacings.xlarge};
   elevation: 5;
   flex-direction: row;
   justify-content: space-around;
-  margin-bottom: 20px;
+  margin-bottom: ${props => props.theme.spacings.xsmall};
 `;
 
 export const BoxLogo = styled.View``;
 
 export const BoxInfos = styled.View`
-  margin-right: 30px;
-  margin-top: 15px;
+  margin-right: ${props => props.theme.spacings.xlarge};
+  margin-top: ${props => props.theme.spacings.small};
 `;
 
 export const Img = styled.Image`
@@ -61,7 +61,7 @@ export const Img = styled.Image`
 export const BoxButton = styled.View`
   width: 100%;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: ${props => props.theme.spacings.xsmall};
 `;
 
 export const BoxModal = styled.View`
@@ -116,7 +116,7 @@ export const SelectedTime = styled.TouchableOpacity`
   align-items: center;
   border-radius: 10px;
   height: 30px;
-  margin-top: 10px;
+  margin-top: ${props => props.theme.spacings.xxnano};
   ${props =>
     props.isSelected &&
     css`
@@ -132,9 +132,9 @@ export const BoxTime = styled.View`
   width: 90%;
   height: auto;
   align-items: center;
-  margin-left: 40px;
-  margin-bottom: 30px;
-  margin-top: 30px;
+  margin-left: ${props => props.theme.spacings.huge};
+  margin-bottom: ${props => props.theme.spacings.xlarge};
+  margin-top: ${props => props.theme.spacings.xlarge};
   flex-direction: row;
   flex-wrap: wrap;
   gap: 20px;

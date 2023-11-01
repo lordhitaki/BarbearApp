@@ -15,9 +15,9 @@ export const Touch = styled.TouchableOpacity`
 export const BoxSelec = styled.View`
   width: 90%;
   height: 20%;
-  background-color: white;
+  background-color: ${props => props.theme.colors.white};
   elevation: 5;
-  margin-top: 30px;
+  margin-top: ${props => props.theme.spacings.xlarge};
   border-radius: 15px;
   justify-content: center;
 `;
@@ -26,7 +26,7 @@ export const BoxWeek = styled.View`
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  margin-top: 30px;
+  margin-top: ${props => props.theme.spacings.xlarge};
   gap: 12px;
   padding-bottom: 10px;
 `;
@@ -35,14 +35,14 @@ export const TouchCheck = styled.TouchableOpacity`
   border-radius: 10px;
   width: 13%;
   border-width: 1px;
-  border-color: #fc0137;
+  border-color: ${props => props.theme.colors.error};
   align-items: center;
   justify-content: center;
   ${props =>
     props.isSelected &&
     css`
       background-color: ${props => props.theme.colors.error};
-      color: white;
+      color: ${props => props.theme.colors.white};
     `}
 `;
 
@@ -54,13 +54,13 @@ export const Hours = styled.View`
   width: 90%;
   height: auto;
   align-items: center;
-  margin-bottom: 30px;
-  margin-top: 30px;
+  margin-bottom: ${props => props.theme.spacings.xlarge};
+  margin-top: ${props => props.theme.spacings.xlarge};
   flex-direction: row;
   flex-wrap: wrap;
   gap: 20px;
   justify-content: center;
-  background-color: white;
+  background-color: ${props => props.theme.colors.white};
   border-radius: 15px;
   padding: 10px;
 `;
@@ -73,9 +73,9 @@ export const TouchHour = styled.TouchableOpacity`
   justify-content: center;
   border-radius: 10px;
   height: 30px;
-  margin-top: 10px;
+  margin-top: ${props => props.theme.spacings.xxnano};
   border-width: 1px;
-  border-color: red;
+  border-color: ${props => props.theme.colors.error};
 `;
 
 export const Header = styled.View`
@@ -83,5 +83,5 @@ export const Header = styled.View`
   width: 100%;
   align-items: center;
   justify-content: center;
-  margin-top: 20px;
+  margin-top: ${props => props.theme.spacings.xsmall};
 `;

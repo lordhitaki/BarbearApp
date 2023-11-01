@@ -14,10 +14,7 @@ const ToastConfig = {
         size="medium"
         marginTop="nano"
       />
-      <Title
-        text="Dia selecionado não está presente nas datas disponíveis."
-        align="center"
-      />
+      <Title text="Tarefa Feita, removida de sua agenda!" align="center" />
     </Styled.BoxToastSuccess>
   ),
   error: ({text1, text2, props}) => (

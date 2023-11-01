@@ -13,11 +13,14 @@ import Home from '../pages/home';
 import MyScheduleAdminP from '../pages/home/profile/admin';
 import ExpandableCalendarScreen from '../pages/home/mySchedule/admin';
 
+import Financial from '../pages/home/profile/financial';
+import Finish from '../pages/home/profile/financial/finish';
+
 const Stack = createNativeStackNavigator();
 
 export default function Routes() {
   return (
-    <Stack.Navigator initialRouteName="SplashScreen">
+    <Stack.Navigator initialRouteName="Finish">
       <Stack.Screen
         name="SplashScreen"
         component={SplashScreen}
@@ -26,6 +29,11 @@ export default function Routes() {
       <Stack.Screen
         name="Index"
         component={Index}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Financial"
+        component={Financial}
         options={{headerShown: false}}
       />
       <Stack.Screen
@@ -61,6 +69,11 @@ export default function Routes() {
       <Stack.Screen
         name="ExpandableCalendarScreen"
         component={ExpandableCalendarScreen}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Finish"
+        component={Finish}
         options={{headerShown: false}}
       />
     </Stack.Navigator>

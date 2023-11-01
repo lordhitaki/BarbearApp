@@ -23,8 +23,7 @@ import * as Styled from './styles';
 
 export default function Register() {
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [user, setUser] = useState(null);
-  const navigation = useNavigation();
+
   const clienteId =
     '1026438868042-4ukrocj1dn4ec3a1enqd1oe4900t2mvm.apps.googleusercontent.com';
 

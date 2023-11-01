@@ -1,6 +1,6 @@
 import {useState} from 'react';
 
-let schedulesData = []; // Inicialize com um valor vazio
+let schedulesData = [];
 
 export function setSchedules(newSchedules) {
   schedulesData = newSchedules;
@@ -15,7 +15,7 @@ export function useSchedules() {
 
   const setSchedulesWrapper = newSchedules => {
     setLocalSchedules(newSchedules);
-    setSchedules(newSchedules); // Atualize a variável global quando o estado local for atualizado
+    setSchedules(newSchedules);
   };
 
   return [schedules, setSchedulesWrapper];

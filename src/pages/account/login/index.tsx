@@ -47,11 +47,6 @@ export default function Login() {
           icon="facebook"
           colorButton="transparent"
           border="grayDark"
-          // onPress={() =>
-          //   onFacebookButtonPress().then(() =>
-          //     console.log('Signed in with Facebook!'),
-          //   )
-          // }
         />
       </Styled.BoxBTN>
       <Title

@@ -4,6 +4,7 @@ import firestore from '@react-native-firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import auth from '@react-native-firebase/auth';
 import {useNavigation} from '@react-navigation/native';
+import {CommonActions} from '@react-navigation/native';
 
 import {Title} from '../../../../components/title';
 
@@ -13,7 +14,6 @@ export default function CompleteRegistration() {
   const navigation = useNavigation();
   const [user, setUser] = useState();
   const [admin, setAdmin] = useState(undefined);
-  // const [uid, setUid] = useState();
   const [phoneCheck, setPhoneCheck] = useState();
 
   useEffect(() => {
@@ -37,7 +37,6 @@ export default function CompleteRegistration() {
           fetchUserInfo();
           const infoData = infoSnapshot.docs[0]._data;
           setAdmin(infoData.admin);
-          // setUid(infoData.uid);
           if (infoData.phone !== undefined) {
             setPhoneCheck(infoData.phone);
           } else {
@@ -73,11 +72,22 @@ export default function CompleteRegistration() {
       } else {
         await infosCollection.add(InfosRegister);
       }
-      navigation.navigate('Home');
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{name: 'Home'}],
+        }),
+      );
     } else {
-      navigation.navigate('Home');
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{name: 'Home'}],
+        }),
+      );
     }
   };
+
   useEffect(() => {
     if (phoneCheck !== undefined) {
       RegisterInfos();
