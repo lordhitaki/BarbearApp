@@ -2,12 +2,12 @@ import React from 'react';
 import auth from '@react-native-firebase/auth';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import {useNavigation} from '@react-navigation/native';
+import Toast from 'react-native-toast-message';
 
 import {Title} from '../../../components/title';
 import Button from '../../../components/button';
 
 import * as Styled from './styles';
-import Toast from 'react-native-toast-message';
 
 export default function Login() {
   const navigation = useNavigation();
@@ -47,11 +47,6 @@ export default function Login() {
           icon="facebook"
           colorButton="transparent"
           border="grayDark"
-          // onPress={() =>
-          //   onFacebookButtonPress().then(() =>
-          //     console.log('Signed in with Facebook!'),
-          //   )
-          // }
         />
       </Styled.BoxBTN>
       <Title

@@ -20,7 +20,7 @@ export default function LoginAdm() {
 
   const signUpSchema = yup.object({
     username: yup.string().required('Preencha este campo'),
-    Password: yup.string().required('Informe sua senha!'), // Corrigido para 'Password' com P maiúsculo
+    Password: yup.string().required('Informe sua senha!'),
   });
 
   const {
@@ -43,7 +43,6 @@ export default function LoginAdm() {
   };
 
   function handleLogin() {
-    console.log('aqui');
     auth()
       .signInWithEmailAndPassword(email, password)
       .then(() => {

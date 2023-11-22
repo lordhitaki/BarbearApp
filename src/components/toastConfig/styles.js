@@ -1,19 +1,17 @@
 import styled from 'styled-components/native';
 
 export const BoxToastSuccess = styled.View`
-  height: 60px;
   width: 90%;
-  background-color: white;
+  background-color: ${props => props.theme.colors.white};
   border-left-width: 10px;
-  border-color: #3dc75b;
+  border-color: ${props => props.theme.colors.toastSucces};
   border-radius: 10px;
 `;
 
 export const BoxToastError = styled.View`
-  height: 90px;
   width: 90%;
-  background-color: white;
+  background-color: ${props => props.theme.colors.white};
   border-left-width: 10px;
-  border-color: #ff0000;
+  border-color: ${props => props.theme.colors.toastError};
   border-radius: 10px;
 `;

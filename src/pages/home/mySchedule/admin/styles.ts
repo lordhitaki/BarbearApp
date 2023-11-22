@@ -25,12 +25,13 @@ export const Touch = styled.TouchableOpacity``;
 
 export const BoxModal = styled.View`
   margin-top: 50%;
-  width: 100%;
-  height: 28%;
-  background-color: white;
+  margin-left: 5%;
+  width: 90%;
+  height: 35%;
+  background-color: ${props => props.theme.colors.white};
   border-radius: 15px;
   elevation: 5;
-  flex-direction: row;
+  padding: 10px;
 `;
 
 export const BoxBt = styled.View`
@@ -40,6 +41,15 @@ export const BoxBt = styled.View`
   width: 100%;
   justify-content: center;
   gap: 20px;
+`;
+
+export const BoxFuck = styled.View`
+  flex-direction: row;
+  justify-content: space-around;
+`;
+
+export const BoxLogo = styled.View`
+  margin-right: 20px;
 `;
 
 export const BoxDescriptionClient = styled.View`

@@ -3,7 +3,7 @@ import {ButtonProps} from './index';
 
 export const Button = styled.TouchableOpacity<ButtonProps>`
   width: ${({theme, size}) => size || 85}%;
-  margin-top: 10px;
+  margin-top: ${props => props.theme.spacings.xxnano};
   align-items: center;
   justify-content: center;
   height: 55px;
@@ -17,9 +17,6 @@ export const Button = styled.TouchableOpacity<ButtonProps>`
   ${({link, theme}) =>
     link &&
     `
-      height: 30px;
-      border: none;
-      background-color: transparent;
   `}
 `;
 

@@ -25,8 +25,8 @@ export const Touch = styled.TouchableOpacity`
   width: 100%;
   height: 40px;
   justify-content: space-between;
-  margin-top: 15px;
-  padding-left: 20px;
+  margin-top: ${props => props.theme.spacings.small};
+  padding-left: ${props => props.theme.spacings.xsmall};
   flex-direction: row;
   align-items: center;
 `;
@@ -34,10 +34,10 @@ export const Touch1 = styled.TouchableOpacity`
   width: 20%;
   height: 40px;
   border-radius: 15px;
-  background-color: white;
-  elevation: 20;
+  background-color: ${props => props.theme.colors.white};
+  elevation: 5;
   justify-content: center;
-  margin-top: 30px;
+  margin-top: ${props => props.theme.spacings.xlarge};
   padding-left: 20px;
   align-items: center;
 `;
@@ -46,9 +46,9 @@ export const InfoDados = styled.View`
   width: 100%;
   height: 40px;
   border-radius: 15px;
-  background-color: white;
-  elevation: 20;
-  margin-top: 30px;
+  background-color: ${props => props.theme.colors.white};
+  elevation: 5;
+  margin-top: ${props => props.theme.spacings.xlarge};
   padding-left: 20px;
   flex-direction: row;
 `;
@@ -60,18 +60,20 @@ export const BoxModal = styled.View`
 
 export const Modal = styled.Modal``;
 
+export const Scroll = styled.ScrollView``;
+
 export const ModalView = styled.View`
   width: 100%;
   border-radius: 20px;
   padding: 35px;
   background-color: ${props => props.theme.colors.secondary};
   height: 85%;
-  elevation: 30;
+  elevation: 5;
 `;
 
 export const BoxInput = styled.View`
-  margin-top: 20px;
-  margin-bottom: 20px;
+  margin-top: ${props => props.theme.spacings.xsmall};
+  margin-bottom: ${props => props.theme.spacings.xsmall};
   gap: 20px;
 `;
 
@@ -79,8 +81,8 @@ export const Header = styled.View`
   flex-direction: row;
   align-items: flex-start;
   width: 100%;
-  margin-top: 10px;
-  margin-left: 10px;
+  margin-top: ${props => props.theme.spacings.xxnano};
+  margin-left: ${props => props.theme.spacings.xxnano};
 `;
 
 export const Logo = styled.Image`
@@ -88,8 +90,31 @@ export const Logo = styled.Image`
   height: 70px;
 `;
 export const Icon = styled.Image`
-  width: 10px;
-  height: 10px;
+  width: 13px;
+  height: 13px;
   object-fit: contain;
   margin-right: 5%;
+  margin-top: ${props => props.theme.spacings.xxnano};
+`;
+
+export const BoxBT = styled.View`
+  width: 100%;
+  margin-top: ${props => props.theme.spacings.xlarge};
+`;
+
+export const HeadeTerms = styled.View`
+  width: 100%;
+  flex-direction: row;
+  justify-content: center;
+  margin-bottom: ${props => props.theme.spacings.xlarge};
+`;
+
+export const TouchTerms = styled.TouchableOpacity`
+  position: absolute;
+  right: ${props => props.theme.spacings.nano};
+`;
+
+export const BoxLoad = styled.View`
+  margin-top: 20px;
+  margin-bottom: 20px;
 `;

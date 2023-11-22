@@ -11,6 +11,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
 
 export default function Scheduler() {
+  const navigation = useNavigation();
   const [date, setDate] = useState(new Date());
   const options = {weekday: 'long', timeZone: 'UTC'};
   const [uid, setUid] = useState();
@@ -155,6 +156,9 @@ export default function Scheduler() {
                   Toast.show({
                     type: 'ScheduledAdd',
                   });
+                  navigation.navigate('Home', {
+                    screen: 'MySchedule',
+                  });
                   if (chose) {
                     const fieldName = selectedDayOfWeek;
                     const updatedHorarios = (
@@ -177,6 +181,9 @@ export default function Scheduler() {
                         console.log(
                           'Horário removido com sucesso do Firestore.',
                         );
+                        navigation.navigate('Home', {
+                          screen: 'Minha Agenda',
+                        });
                       })
                       .catch(error => {
                         console.error('Erro ao atualizar o Firestore:', error);
@@ -392,9 +399,16 @@ export default function Scheduler() {
                   marginTop="xxnano"
                   marginLeft="xxnano"
                 />
-                <Styled.Img source={{uri: chose?.img}} />
+                {chose?.img ? <Styled.Img source={{uri: chose?.img}} /> : null}
               </Styled.BoxLogo>
               <Styled.BoxInfos>
+                <Title
+                  text={'Serviço: '}
+                  family="bold"
+                  size="xsmall"
+                  marginBottom="nano"
+                />
+                <Title text={choseService?.services} size="small" />
                 <Title
                   text={'Valor : '}
                   family="bold"
@@ -407,13 +421,6 @@ export default function Scheduler() {
                   family="regular"
                   marginRight="medium"
                 />
-                <Title
-                  text={'Duração estimada : '}
-                  family="bold"
-                  size="xsmall"
-                  marginBottom="nano"
-                />
-                <Title text={'60 minutos '} size="small" />
               </Styled.BoxInfos>
             </Styled.BoxResume>
             <Styled.BoxButton>

@@ -17,6 +17,11 @@ export default function TabRoute() {
         tabBarActiveBackgroundColor: '#DCDCDC',
         tabBarActiveTintColor: 'red',
         headerShown: false,
+        tabBarStyle: {
+          borderTopColor: 'black',
+          borderTopWidth: 1,
+          height: '7%',
+        },
         tabBarLabelStyle: {
           fontSize: 14,
         },
@@ -27,9 +32,9 @@ export default function TabRoute() {
         options={{
           tabBarIcon: ({color, size, focused}) => {
             if (focused) {
-              return <Icon name="calendar-check" color="red" size={28} />;
+              return <Icon name="tasks" color="red" size={28} />;
             }
-            return <Icon name="calendar-check" color="#000" size={28} />;
+            return <Icon name="tasks" color="#000" size={28} />;
           },
         }}
       />
@@ -39,9 +44,9 @@ export default function TabRoute() {
         options={{
           tabBarIcon: ({color, size, focused}) => {
             if (focused) {
-              return <Icon name="calendar" color="red" size={28} />;
+              return <Icon name="calendar-day" color="red" size={28} />;
             }
-            return <Icon name="calendar" color="#000" size={28} />;
+            return <Icon name="calendar-day" color="#000" size={28} />;
           },
           headerStyle: {
             backgroundColor: '#121212',
@@ -71,9 +76,9 @@ export default function TabRoute() {
         options={{
           tabBarIcon: ({color, size, focused}) => {
             if (focused) {
-              return <Icon name="user" color="red" size={28} />;
+              return <Icon name="user-alt" color="red" size={28} />;
             }
-            return <Icon name="user" color="#000" size={28} />;
+            return <Icon name="user-alt" color="#000" size={28} />;
           },
         }}
       />

@@ -1,15 +1,18 @@
 import React, {useEffect, useState} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import firestore from '@react-native-firebase/firestore';
-import {useFocusEffect} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {format} from 'date-fns';
+import Toast from 'react-native-toast-message';
+import LottieView from 'lottie-react-native';
 
 import {Title} from '../../../../components/title';
-
-import * as Styled from './styles';
 import Button from '../../../../components/button';
 
+import * as Styled from './styles';
+
 export default function MyScheduleUser() {
+  const navigation = useNavigation();
   const [user, setUser] = useState();
   const [selectedInfo, setSelecetedInfo] = useState();
   const [modalVisible, setModalVisible] = useState(false);
@@ -44,11 +47,53 @@ export default function MyScheduleUser() {
   };
 
   const deleteTask = async taskId => {
+    const updatedScheduleData = {[selectedInfo.week]: [selectedInfo.hour]};
+
+    // Consulta para encontrar o documento correspondente com base no UID
+    const query = firestore()
+      .collection('profissionais')
+      .where('uid', '==', selectedInfo.uidPro);
+
     try {
-      await firestore().collection('scheduled').doc(taskId).delete();
-      fetchUserInfo();
+      const querySnapshot = await query.get();
+
+      if (querySnapshot.size > 0) {
+        querySnapshot.forEach(async doc => {
+          const docRef = firestore().collection('profissionais').doc(doc.id);
+
+          const existingData = (await docRef.get()).data() || {};
+
+          if (
+            existingData.scheduleData &&
+            existingData.scheduleData[selectedInfo.week]
+          ) {
+            existingData.scheduleData[selectedInfo.week].push(
+              selectedInfo.hour,
+            );
+          } else {
+            existingData.scheduleData = {
+              ...existingData.scheduleData,
+              [selectedInfo.week]: [selectedInfo.hour],
+            };
+          }
+
+          await docRef.update(existingData);
+
+          try {
+            await firestore().collection('scheduled').doc(taskId).delete();
+            fetchUserInfo();
+            Toast.show({
+              type: 'CancelOrder',
+            });
+          } catch (error) {
+            console.error('Erro ao excluir a tarefa:', error);
+          }
+        });
+      } else {
+        console.log('Nenhum documento encontrado para o UID fornecido.');
+      }
     } catch (error) {
-      console.error('Erro ao excluir a tarefa:', error);
+      console.error('Erro ao atualizar o documento:', error);
     }
   };
 
@@ -78,7 +123,6 @@ export default function MyScheduleUser() {
       style: 'currency',
       currency: 'BRL',
     }).format(item.price);
-
     return (
       <Styled.BoxFlat
         key={index}
@@ -94,28 +138,23 @@ export default function MyScheduleUser() {
         <Styled.BoxText>
           <Title
             text="Serviço:"
-            size="medium"
+            size="xxnano"
             marginLeft="medium"
             marginTop="xnano"
           />
           <Title
             text={item.services}
-            size="medium"
+            size="xxnano"
             family="bold"
             marginLeft="xxnano"
             marginTop="xnano"
           />
         </Styled.BoxText>
         <Styled.BoxText>
-          <Title
-            text="Dia:"
-            size="medium"
-            marginLeft="medium"
-            marginTop="xxnano"
-          />
+          <Title text="Dia:" xxnano marginLeft="medium" marginTop="xxnano" />
           <Title
             text={formattedDate}
-            size="medium"
+            xxnano
             family="bold"
             marginLeft="medium"
             marginTop="xxnano"
@@ -130,31 +169,40 @@ export default function MyScheduleUser() {
               <Styled.BoxLogo>
                 <Title
                   text={selectedInfo?.professional}
-                  size="medium"
+                  xxnano
                   family="bold"
                   marginTop="nano"
                   marginBottom="nano"
                   marginLeft="xnano"
                 />
-                <Styled.Img source={{uri: professionalPhoto}} />
+                {professionalPhoto ? (
+                  <Styled.Img source={{uri: professionalPhoto}} />
+                ) : null}
               </Styled.BoxLogo>
               <Styled.BoxText2>
                 <Styled.BoxText1>
-                  <Title text="Preço: " size="medium" />
+                  <Title text="Preço: " size="xxnano" />
                   <Title
                     text={formattedPrice}
                     marginRight="huge"
                     family="bold"
-                    size="medium"
+                    size="xxnano"
                   />
                 </Styled.BoxText1>
                 <Styled.BoxText1>
-                  <Title text="Hora: " size="medium" />
+                  <Title text="Hora: " size="xxnano" />
                   <Title
                     text={selectedInfo?.hour}
-                    // marginRight="huge"
                     family="bold"
-                    size="medium"
+                    size="xxnano"
+                  />
+                </Styled.BoxText1>
+                <Styled.BoxText1>
+                  <Title text="Serviço: " size="xxnano" />
+                  <Title
+                    text={selectedInfo?.services}
+                    family="bold"
+                    size="xxnano"
                   />
                 </Styled.BoxText1>
               </Styled.BoxText2>
@@ -188,15 +236,45 @@ export default function MyScheduleUser() {
     <Styled.Container>
       <Title
         text="Minha agenda"
-        size="medium"
+        size="xsmall"
         family="bold"
         marginTop="medium"
       />
-      <Styled.Flat
-        data={user}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={renderSchedule}
-      />
+      {user?.length > 0 ? (
+        <Styled.Flat
+          data={user}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={renderSchedule}
+        />
+      ) : (
+        <>
+          <Styled.BoxNone>
+            <Title
+              text="Ainda não existe um horario marcado!"
+              marginTop="medium"
+              size="medium"
+            />
+            <LottieView
+              source={require('../../../../../assets/animation/bigodim.json')}
+              autoPlay
+              loop
+              style={{width: 400, height: 400}}
+            />
+            <Styled.BoxNT>
+              <Title text="Clique " size="medium" />
+              <Styled.Touc
+                onPress={() =>
+                  navigation.navigate('TabRoute', {
+                    screen: 'Agendar',
+                  })
+                }>
+                <Title text="aqui " size="medium" color="error" family="bold" />
+              </Styled.Touc>
+              <Title text=" para ir até la! " size="medium" />
+            </Styled.BoxNT>
+          </Styled.BoxNone>
+        </>
+      )}
     </Styled.Container>
   );
 }
