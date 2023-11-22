@@ -8,12 +8,14 @@ import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
-import Restart from 'react-native-restart'; // Importe a função de reinicialização
+import Restart from 'react-native-restart';
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 
 import {Title} from '../../../components/title';
 import Button from '../../../components/button';
 
 import * as Styled from './styles';
+import {ActivityIndicator} from 'react-native';
 
 export default function Profile() {
   const navigation = useNavigation();
@@ -31,6 +33,52 @@ export default function Profile() {
 
     return subscriber;
   }, []);
+
+  // const handleSelectImage = async () => {
+  //   try {
+  //     const options = {
+  //       mediaType: 'photo',
+  //       includeBase64: false,
+  //       selection: 10,
+  //       cancelButtonTitle: 'Cancelar',
+  //       chooseFileButtonTitle: 'Escolher arquivo',
+  //       takePhotoButtonTitle: 'Tirar foto',
+  //       storageOptions: {
+  //         skipBackup: true,
+  //         path: 'images',
+  //       },
+  //     };
+
+  //     const result = await launchCamera(options);
+  //     console.log('Result:', result);
+  //   } catch (error) {
+  //     console.error('Erro ao selecionar imagem:', error);
+  //   }
+  // };
+  // const handleSelectImage = async () => {
+  //   try {
+  //     const options = {
+  //       mediaType: 'photo', // 'photo' para imagens, 'video' para vídeos
+  //       includeBase64: false, // Defina como true se precisar do conteúdo em formato base64
+  //       selection: 10, // Número máximo de mídias que podem ser selecionadas
+  //       // directoryTitle: 'Selecione um diretório', // Título do diretório (não suportado no iOS)
+  //       cancelButtonTitle: 'Cancelar',
+  //       chooseFileButtonTitle: 'Escolher arquivo', // Texto do botão de escolher arquivo (não suportado no iOS)
+  //       takePhotoButtonTitle: 'Tirar foto', // Texto do botão de tirar foto (não suportado no Android)
+  //       storageOptions: {
+  //         skipBackup: true,
+  //         path: 'images',
+  //       },
+  //     };
+
+  //     const result = await launchImageLibrary(options);
+  //     console.log('Result:', result);
+
+  //     // Faça algo com o resultado, se necessário
+  //   } catch (error) {
+  //     console.error('Erro ao selecionar imagem:', error);
+  //   }
+  // };
 
   const fetchUserInfo = async () => {
     try {
@@ -85,24 +133,45 @@ export default function Profile() {
         console.error('Erro ao fazer logout:', error);
       })
       .finally(() => {
-        Restart.Restart(); // Reinicie o aplicativo
+        Restart.Restart();
       });
   }
+  const formatPhoneNumber = phoneNumber => {
+    const cleaned = String(phoneNumber).replace(/\D/g, '');
+
+    const match = cleaned.match(/^(\d{2})(\d{1})(\d{4})(\d{4})$/);
+
+    if (match) {
+      return `(${match[1]}) ${match[2]} ${match[3]}-${match[4]}`;
+    }
+
+    return phoneNumber;
+  };
 
   return (
     <Styled.Container>
       <Styled.Header>
         <Styled.Logo source={require('../../../../assets/img/logo.png')} />
-        <Title text={`Perfil `} color="dark" size="large" marginTop="medium" />
+        <Title text={'Perfil '} color="dark" size="large" marginTop="medium" />
       </Styled.Header>
       <Styled.BoxProfilePic>
-        <Styled.ProfilePic source={{uri: user?.photoUrl}} />
-        <Title
-          text={user?.name}
-          size="medium"
-          family="bold"
-          marginBottom="medium"
-        />
+        {user?.photoUrl ? (
+          <>
+            <Styled.ProfilePic source={{uri: user?.photoUrl}} />
+            <Title
+              text={user?.name}
+              size="medium"
+              family="bold"
+              marginBottom="medium"
+            />
+          </>
+        ) : (
+          <>
+            <Styled.BoxLoad>
+              <ActivityIndicator color={'red'} size={30} />
+            </Styled.BoxLoad>
+          </>
+        )}
       </Styled.BoxProfilePic>
       <Styled.Body>
         <Styled.Touch onPress={() => setModalVisible(!modalVisible)}>
@@ -124,16 +193,12 @@ export default function Profile() {
                 {user?.admin === true ? (
                   <Title text={`${user?.name}`} family="bold" size="medium" />
                 ) : (
-                  <Title
-                    text={`${dados?.displayName}`}
-                    family="bold"
-                    size="medium"
-                  />
+                  <Title text={`${dados?.displayName}`} family="bold" />
                 )}
               </Styled.InfoDados>
               <Styled.InfoDados>
                 <Title text={`Tel:${dados?.phone || ''} `} />
-                <Title text={user?.phone} family="bold" size="medium" />
+                <Title text={formatPhoneNumber(user?.phone)} family="bold" />
               </Styled.InfoDados>
               <Styled.BoxBT>
                 <Button
@@ -293,6 +358,9 @@ Ao aceitar estes Termos de Uso, você concorda em cumprir todas as disposições
         <Styled.Touch onPress={handleSignOut}>
           <Title text=" Sair" color="error" family="bold" size="medium" />
         </Styled.Touch>
+        {/* <Styled.Touch onPress={() => handleSelectImage()}>
+          <Title text="Teste" />
+        </Styled.Touch> */}
       </Styled.Body>
     </Styled.Container>
   );

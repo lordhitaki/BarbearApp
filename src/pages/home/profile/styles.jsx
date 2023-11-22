@@ -113,3 +113,8 @@ export const TouchTerms = styled.TouchableOpacity`
   position: absolute;
   right: ${props => props.theme.spacings.nano};
 `;
+
+export const BoxLoad = styled.View`
+  margin-top: 20px;
+  margin-bottom: 20px;
+`;

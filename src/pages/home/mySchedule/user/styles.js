@@ -78,3 +78,15 @@ export const BoxFuck = styled.View`
   flex-direction: row;
   justify-content: space-around;
 `;
+
+export const BoxNone = styled.View`
+  width: 90%;
+  align-items: center;
+  margin-top: 30%;
+`;
+
+export const BoxNT = styled.View`
+  flex-direction: row;
+`;
+
+export const Touc = styled.TouchableOpacity``;

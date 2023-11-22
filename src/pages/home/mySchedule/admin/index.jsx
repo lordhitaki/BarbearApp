@@ -5,7 +5,7 @@ import {
   CalendarProvider,
   LocaleConfig,
 } from 'react-native-calendars';
-import {useFocusEffect} from '@react-navigation/native';
+import {useFocusEffect, useIsFocused} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import firestore from '@react-native-firebase/firestore';
 import {
@@ -41,6 +41,7 @@ export default function ExpandableCalendarScreen(props: Props) {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [selectedItemInfo, setSelectedItemInfo] = useState(null);
+  const isFocused = useIsFocused();
 
   const todayBtnTheme = useRef({
     todayButtonTextColor: themeColor,
@@ -90,11 +91,12 @@ export default function ExpandableCalendarScreen(props: Props) {
 
   LocaleConfig.defaultLocale = 'pt-br';
 
-  useFocusEffect(
-    React.useCallback(() => {
+  useEffect(() => {
+    if (isFocused) {
       fetchUserInfo();
-    }, []),
-  );
+      fetchSchedule();
+    }
+  }, [isFocused]);
 
   const fetchUserInfo = async () => {
     try {
@@ -245,7 +247,9 @@ export default function ExpandableCalendarScreen(props: Props) {
             onRequestClose={() => setModalVisible(false)}>
             <Styled.BoxModal>
               <Styled.BoxFuck>
-                <Styled.IMG source={{uri: selectedItemInfo?.photoUrl}} />
+                {selectedItemInfo?.photoUrl ? (
+                  <Styled.IMG source={{uri: selectedItemInfo?.photoUrl}} />
+                ) : null}
 
                 <Styled.BoxDescriptionClient>
                   <Title

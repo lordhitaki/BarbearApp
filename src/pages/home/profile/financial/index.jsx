@@ -33,7 +33,7 @@ export default function Financial() {
       </Styled.Touch1>
       <Styled.Touch1
         onPress={() => {
-          navigation.navigate('Financial');
+          navigation.navigate('Balance');
         }}>
         <Title text="Balanço semanal" size="medium" />
         <Styled.Icon source={require('../../../../../assets/img/next.png')} />

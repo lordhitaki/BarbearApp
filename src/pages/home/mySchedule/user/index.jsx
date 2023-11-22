@@ -1,16 +1,18 @@
 import React, {useEffect, useState} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import firestore from '@react-native-firebase/firestore';
-import {useFocusEffect} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {format} from 'date-fns';
+import Toast from 'react-native-toast-message';
+import LottieView from 'lottie-react-native';
 
 import {Title} from '../../../../components/title';
+import Button from '../../../../components/button';
 
 import * as Styled from './styles';
-import Button from '../../../../components/button';
-import Toast from 'react-native-toast-message';
 
 export default function MyScheduleUser() {
+  const navigation = useNavigation();
   const [user, setUser] = useState();
   const [selectedInfo, setSelecetedInfo] = useState();
   const [modalVisible, setModalVisible] = useState(false);
@@ -45,14 +47,53 @@ export default function MyScheduleUser() {
   };
 
   const deleteTask = async taskId => {
+    const updatedScheduleData = {[selectedInfo.week]: [selectedInfo.hour]};
+
+    // Consulta para encontrar o documento correspondente com base no UID
+    const query = firestore()
+      .collection('profissionais')
+      .where('uid', '==', selectedInfo.uidPro);
+
     try {
-      await firestore().collection('scheduled').doc(taskId).delete();
-      fetchUserInfo();
-      Toast.show({
-        type: 'CancelOrder',
-      });
+      const querySnapshot = await query.get();
+
+      if (querySnapshot.size > 0) {
+        querySnapshot.forEach(async doc => {
+          const docRef = firestore().collection('profissionais').doc(doc.id);
+
+          const existingData = (await docRef.get()).data() || {};
+
+          if (
+            existingData.scheduleData &&
+            existingData.scheduleData[selectedInfo.week]
+          ) {
+            existingData.scheduleData[selectedInfo.week].push(
+              selectedInfo.hour,
+            );
+          } else {
+            existingData.scheduleData = {
+              ...existingData.scheduleData,
+              [selectedInfo.week]: [selectedInfo.hour],
+            };
+          }
+
+          await docRef.update(existingData);
+
+          try {
+            await firestore().collection('scheduled').doc(taskId).delete();
+            fetchUserInfo();
+            Toast.show({
+              type: 'CancelOrder',
+            });
+          } catch (error) {
+            console.error('Erro ao excluir a tarefa:', error);
+          }
+        });
+      } else {
+        console.log('Nenhum documento encontrado para o UID fornecido.');
+      }
     } catch (error) {
-      console.error('Erro ao excluir a tarefa:', error);
+      console.error('Erro ao atualizar o documento:', error);
     }
   };
 
@@ -134,23 +175,24 @@ export default function MyScheduleUser() {
                   marginBottom="nano"
                   marginLeft="xnano"
                 />
-                <Styled.Img source={{uri: professionalPhoto}} />
+                {professionalPhoto ? (
+                  <Styled.Img source={{uri: professionalPhoto}} />
+                ) : null}
               </Styled.BoxLogo>
               <Styled.BoxText2>
                 <Styled.BoxText1>
-                  <Title text="Preço: " size="medium" />
+                  <Title text="Preço: " size="xxnano" />
                   <Title
                     text={formattedPrice}
                     marginRight="huge"
                     family="bold"
-                    xxnano
+                    size="xxnano"
                   />
                 </Styled.BoxText1>
                 <Styled.BoxText1>
                   <Title text="Hora: " size="xxnano" />
                   <Title
                     text={selectedInfo?.hour}
-                    // marginRight="huge"
                     family="bold"
                     size="xxnano"
                   />
@@ -159,7 +201,6 @@ export default function MyScheduleUser() {
                   <Title text="Serviço: " size="xxnano" />
                   <Title
                     text={selectedInfo?.services}
-                    // marginRight="huge"
                     family="bold"
                     size="xxnano"
                   />
@@ -199,11 +240,41 @@ export default function MyScheduleUser() {
         family="bold"
         marginTop="medium"
       />
-      <Styled.Flat
-        data={user}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={renderSchedule}
-      />
+      {user?.length > 0 ? (
+        <Styled.Flat
+          data={user}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={renderSchedule}
+        />
+      ) : (
+        <>
+          <Styled.BoxNone>
+            <Title
+              text="Ainda não existe um horario marcado!"
+              marginTop="medium"
+              size="medium"
+            />
+            <LottieView
+              source={require('../../../../../assets/animation/bigodim.json')}
+              autoPlay
+              loop
+              style={{width: 400, height: 400}}
+            />
+            <Styled.BoxNT>
+              <Title text="Clique " size="medium" />
+              <Styled.Touc
+                onPress={() =>
+                  navigation.navigate('TabRoute', {
+                    screen: 'Agendar',
+                  })
+                }>
+                <Title text="aqui " size="medium" color="error" family="bold" />
+              </Styled.Touc>
+              <Title text=" para ir até la! " size="medium" />
+            </Styled.BoxNT>
+          </Styled.BoxNone>
+        </>
+      )}
     </Styled.Container>
   );
 }

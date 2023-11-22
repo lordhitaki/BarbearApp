@@ -7,9 +7,10 @@ import Back from '../../../assets/img/back';
 
 interface HeaderProps {
   title?: string;
+  showImage?: boolean; // Adicione uma propriedade para controlar a exibição da imagem
 }
 
-export default function Header({title, ...rest}: HeaderProps) {
+export default function Header({title, showImage, ...rest}: HeaderProps) {
   const navigation = useNavigation();
 
   return (
@@ -22,7 +23,9 @@ export default function Header({title, ...rest}: HeaderProps) {
           <Title text={title} size="large" color="primary" family="bold" />
         )}
       </Styled.Header>
-      <Styled.Img source={require('../../../assets/img/logo.png')} />
+      {showImage && (
+        <Styled.Img source={require('../../../assets/img/logo.png')} />
+      )}
     </Styled.Container>
   );
 }

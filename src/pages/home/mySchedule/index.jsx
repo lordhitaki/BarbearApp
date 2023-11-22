@@ -6,6 +6,7 @@ import firestore from '@react-native-firebase/firestore';
 import ExpandableCalendarScreen from '../mySchedule/admin/index';
 import MyScheduleUser from './user';
 import * as Styled from './styles';
+import LottieView from 'lottie-react-native';
 
 export default function MySchedule() {
   const [admin, setAdmin] = useState(undefined);

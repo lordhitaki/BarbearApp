@@ -399,7 +399,7 @@ export default function Scheduler() {
                   marginTop="xxnano"
                   marginLeft="xxnano"
                 />
-                <Styled.Img source={{uri: chose?.img}} />
+                {chose?.img ? <Styled.Img source={{uri: chose?.img}} /> : null}
               </Styled.BoxLogo>
               <Styled.BoxInfos>
                 <Title

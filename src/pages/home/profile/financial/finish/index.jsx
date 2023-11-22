@@ -12,9 +12,11 @@ import Back from '../../../../../../assets/img/back';
 import * as Styled from './styles';
 import Button from '../../../../../components/button';
 import InputForm from '../../../../../components/form/input/form';
+import Toast from 'react-native-toast-message';
 
 export default function Finish() {
   const navigation = useNavigation();
+
   const [profissionais, setProfissionais] = useState();
   const [modalVisible, setModalVisible] = useState(false);
   const [modalVisible1, setModalVisible1] = useState(false);
@@ -27,6 +29,8 @@ export default function Finish() {
   const [priceSellTotal, setPriceSellTotal] = useState();
   const [comisisonService, setComissionService] = useState();
   const [comisisonItem, setComissionItem] = useState();
+  const [totalComission, setTotalComission] = useState(0);
+  const [isScreenDirty, setIsScreenDirty] = useState(false);
 
   const signUpSchema = yup.object({
     service: yup.string(),
@@ -52,6 +56,9 @@ export default function Finish() {
     setPriceSellTotal(totalPriceSell);
     const totalAfter20Percent = totalPriceSell * 0.2;
     setComissionItem(totalAfter20Percent);
+
+    const totalComissionValue = totalAfter40Percent + totalAfter20Percent;
+    setTotalComission(totalComissionValue);
   };
 
   const {
@@ -101,6 +108,7 @@ export default function Finish() {
         uid: prevInfosModal.item.uid,
         uidPro: prevInfosModal.item.uidPro,
         duration: prevInfosModal.item.duration,
+        id: prevInfosModal.item.id,
       };
 
       return {
@@ -133,13 +141,56 @@ export default function Finish() {
           error,
         );
       });
-  }, []);
+    CommissionCalculation();
+  }, [infosModal, isScreenDirty]);
 
-  const fetchUserInfo = async teste => {
+  const finishOrder = item => {
+    const itemWithComission = {
+      ...item,
+      totalComission: totalComission,
+    };
+
+    const itemWithComissionAdded = {
+      ...item,
+      itemWithComission: itemWithComission,
+    };
+
+    firestore()
+      .collection('finished')
+      .add(itemWithComissionAdded)
+      .then(() => {
+        setModalVisible2(false);
+        setModalVisible1(false);
+        deleteTask(infosModal);
+        Toast.show({
+          type: 'ScheduledSuccess',
+        });
+      })
+      .catch(error => {
+        console.error('Erro ao adicionar agendamentos:', error);
+      });
+  };
+  const deleteTask = async form => {
+    try {
+      const querySnapshot = await firestore()
+        .collection('done')
+        .where('id', '==', form.item.id)
+        .get();
+
+      querySnapshot.forEach(doc => {
+        doc.ref.delete();
+      });
+    } catch (error) {
+      console.error('Erro ao excluir a tarefa:', error);
+    }
+    fetchUserInfo(infosModal.item.uidPro);
+  };
+
+  const fetchUserInfo = async uidPro => {
     try {
       const infoSnapshot = await firestore()
         .collection('done')
-        .where('uidPro', '==', teste)
+        .where('uidPro', '==', uidPro)
         .get();
       const infoDataArray = [];
 
@@ -197,7 +248,6 @@ export default function Finish() {
       const matchingInfo = infos.find(info => info.uid === uid);
       return matchingInfo ? matchingInfo.name : 'Sem Nome';
     };
-    CommissionCalculation();
 
     return (
       <>
@@ -237,235 +287,142 @@ export default function Finish() {
 
   return (
     <Styled.Container>
-      <Styled.Header>
-        <Styled.Touch onPress={() => navigation.goBack()}>
-          <Back />
-        </Styled.Touch>
-        <Title text="Atendimentos feitos" size="large" family="bold" />
-      </Styled.Header>
-      <Styled.TouchPro onPress={() => setModalVisible(true)}>
-        <Title text="Escolha o profissional: " size="small" family="bold" />
-        <Title
-          text={'' || chose?.professional}
-          size="xsmall"
-          family="bold"
-          marginRight="small"
-        />
-      </Styled.TouchPro>
-      <Styled.Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          setModalVisible(!modalVisible);
-        }}>
-        <Styled.BoxModal>
-          <Styled.ModalView>
+      {isScreenDirty ? (
+        <>
+          <Styled.Header>
+            <Styled.Touch onPress={() => navigation.goBack()}>
+              <Back />
+            </Styled.Touch>
+            <Title text="Atendimentos feitos" size="large" family="bold" />
+          </Styled.Header>
+          <Styled.TouchPro onPress={() => setModalVisible(true)}>
+            <Title text="Escolha o profissional: " size="small" family="bold" />
             <Title
-              text="Escolha um profissional:"
-              size="medium"
+              text={'' || chose?.professional}
+              size="xsmall"
               family="bold"
+              marginRight="small"
             />
-            {profissionais ? (
-              profissionais.map(profissional => (
-                <Styled.Touch2
-                  key={profissional.id}
-                  onPress={() => {
-                    fetchUserInfo(profissional.uid);
-                    setChose(profissional);
-                    setModalVisible(!modalVisible);
+          </Styled.TouchPro>
+          <Styled.Modal
+            animationType="slide"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={() => {
+              setModalVisible(!modalVisible);
+            }}>
+            <Styled.BoxModal>
+              <Styled.ModalView>
+                <Title
+                  text="Escolha um profissional:"
+                  size="medium"
+                  family="bold"
+                />
+                {profissionais ? (
+                  profissionais.map(profissional => (
+                    <Styled.Touch2
+                      key={profissional.id}
+                      onPress={() => {
+                        fetchUserInfo(profissional.uid);
+                        setChose(profissional);
+                        setModalVisible(!modalVisible);
+                      }}>
+                      <Title
+                        text={profissional?.professional}
+                        size="large"
+                        family="bold"
+                      />
+                      <Styled.Img1
+                        source={{
+                          uri: profissional?.img,
+                        }}
+                      />
+                    </Styled.Touch2>
+                  ))
+                ) : (
+                  <Title text="Carregando..." size="small" />
+                )}
+              </Styled.ModalView>
+            </Styled.BoxModal>
+          </Styled.Modal>
+          <Styled.Body>
+            {chose ? (
+              <Styled.BoxFlat>
+                <Styled.Flat
+                  data={services}
+                  keyExtractor={(item, index) => index.toString()}
+                  renderItem={renderServices}
+                />
+                <Styled.Modal
+                  animationType="slide"
+                  transparent={true}
+                  visible={modalVisible1}
+                  onRequestClose={() => {
+                    setModalVisible(!modalVisible1);
                   }}>
-                  <Title
-                    text={profissional?.professional}
-                    size="large"
-                    family="bold"
-                  />
-                  <Styled.Img1
-                    source={{
-                      uri: profissional?.img,
-                    }}
-                  />
-                </Styled.Touch2>
-              ))
-            ) : (
-              <Title text="Carregando..." size="small" />
-            )}
-          </Styled.ModalView>
-        </Styled.BoxModal>
-      </Styled.Modal>
-      <Styled.Body>
-        {chose ? (
-          <Styled.BoxFlat>
-            <Styled.Flat
-              data={services}
-              keyExtractor={(item, index) => index.toString()}
-              renderItem={renderServices}
-            />
-            <Styled.Modal
-              animationType="slide"
-              transparent={true}
-              visible={modalVisible1}
-              onRequestClose={() => {
-                setModalVisible(!modalVisible1);
-              }}>
-              <Styled.BoxModal>
-                <Styled.ModalView1>
-                  <Styled.TouchClosed
-                    onPress={() => setModalVisible1(!modalVisible1)}>
-                    <Title text="X" size="medium" family="bold" />
-                  </Styled.TouchClosed>
-                  <Styled.TextDescr>
-                    <Title text="Cliente: " size="medium" />
-                    <Title
-                      text={infosModal?.name}
-                      family="bold"
-                      size="medium"
-                    />
-                  </Styled.TextDescr>
-                  <Styled.Scroll showsVerticalScrollIndicator={false}>
-                    <Styled.BoxInfos>
-                      <Title text="Serviços feitos: " size="xsmall" />
-                      <Styled.TextInfos>
-                        {infosModal?.item.title.map((title, index) => (
-                          <Styled.BoxText key={index}>
-                            <Title text={title} family="bold" size="xsmall" />
-                          </Styled.BoxText>
-                        ))}
-                        <Styled.BoxText>
-                          <Title
-                            text="Valor dos serviços: "
-                            size="xsmall"
-                            marginTop="xxnano"
-                          />
-                          <Title
-                            text="Comissão "
-                            size="xsmall"
-                            marginTop="xxnano"
-                          />
-                        </Styled.BoxText>
-
-                        {infosModal?.item.price.map((price, index) => (
-                          <Styled.BoxText key={index}>
-                            <Title
-                              text={new Intl.NumberFormat('pt-BR', {
-                                style: 'currency',
-                                currency: 'BRL',
-                              }).format(price)}
-                              family="bold"
-                              size="small"
-                            />
-                            <Title
-                              text={new Intl.NumberFormat('pt-BR', {
-                                style: 'currency',
-                                currency: 'BRL',
-                              }).format(price * 0.4)}
-                              family="bold"
-                              size="small"
-                            />
-                          </Styled.BoxText>
-                        ))}
-                        <Styled.BoxText1>
-                          <Title
-                            text="Total dos serviços: "
-                            size="xsmall"
-                            marginTop="xxnano"
-                          />
-                          <Title
-                            text="Comissão "
-                            size="xsmall"
-                            marginTop="xxnano"
-                          />
-                        </Styled.BoxText1>
-                        <Styled.BoxText>
-                          <Title
-                            text={new Intl.NumberFormat('pt-BR', {
-                              style: 'currency',
-                              currency: 'BRL',
-                            }).format(priceTotal)}
-                            family="bold"
-                            size="small"
-                          />
-                          <Title
-                            text={new Intl.NumberFormat('pt-BR', {
-                              style: 'currency',
-                              currency: 'BRL',
-                            }).format(comisisonService)}
-                            family="bold"
-                            size="small"
-                          />
-                        </Styled.BoxText>
-
-                        {infosModal?.item.sells &&
-                        infosModal.item.sells.length > 0 ? (
-                          <Title
-                            text="Vendas:"
-                            marginTop="xxnano"
-                            size="xsmall"
-                          />
-                        ) : null}
-
-                        {infosModal?.item.sells &&
-                        infosModal.item.sells.length > 0
-                          ? infosModal.item.sells.map((sells, index) => (
+                  <Styled.BoxModal>
+                    <Styled.ModalView1>
+                      <Styled.TouchClosed
+                        onPress={() => setModalVisible1(false)}>
+                        <Title text="X" size="medium" family="bold" />
+                      </Styled.TouchClosed>
+                      <Styled.TextDescr>
+                        <Title text="Cliente: " size="medium" />
+                        <Title
+                          text={infosModal?.name}
+                          family="bold"
+                          size="medium"
+                        />
+                      </Styled.TextDescr>
+                      <Styled.Scroll showsVerticalScrollIndicator={false}>
+                        <Styled.BoxInfos>
+                          <Title text="Serviços feitos: " size="xsmall" />
+                          <Styled.TextInfos>
+                            {infosModal?.item.title.map((title, index) => (
                               <Styled.BoxText key={index}>
                                 <Title
-                                  text={sells}
+                                  text={title}
+                                  family="bold"
+                                  size="xsmall"
+                                />
+                              </Styled.BoxText>
+                            ))}
+                            <Styled.BoxText>
+                              <Title
+                                text="Valor dos serviços: "
+                                size="xsmall"
+                                marginTop="xxnano"
+                              />
+                              <Title
+                                text="Comissão "
+                                size="xsmall"
+                                marginTop="xxnano"
+                              />
+                            </Styled.BoxText>
+
+                            {infosModal?.item.price.map((price, index) => (
+                              <Styled.BoxText key={index}>
+                                <Title
+                                  text={new Intl.NumberFormat('pt-BR', {
+                                    style: 'currency',
+                                    currency: 'BRL',
+                                  }).format(price)}
+                                  family="bold"
+                                  size="small"
+                                />
+                                <Title
+                                  text={new Intl.NumberFormat('pt-BR', {
+                                    style: 'currency',
+                                    currency: 'BRL',
+                                  }).format(price * 0.4)}
                                   family="bold"
                                   size="small"
                                 />
                               </Styled.BoxText>
-                            ))
-                          : null}
-
-                        {infosModal?.item?.priceSell?.length &&
-                        infosModal.item.priceSell.length > 0 ? (
-                          <Styled.BoxText>
-                            <Title
-                              text="Valor do item:"
-                              marginTop="xxnano"
-                              size="xsmall"
-                            />
-                            <Title
-                              text="Comissão"
-                              marginTop="xxnano"
-                              size="xsmall"
-                            />
-                          </Styled.BoxText>
-                        ) : null}
-
-                        {infosModal?.item?.priceSell?.length &&
-                        infosModal.item.priceSell.length > 0
-                          ? infosModal.item.priceSell.map(
-                              (priceSell, index) => (
-                                <>
-                                  <Styled.BoxText key={index}>
-                                    <Title
-                                      text={new Intl.NumberFormat('pt-BR', {
-                                        style: 'currency',
-                                        currency: 'BRL',
-                                      }).format(priceSell)}
-                                      family="bold"
-                                      size="small"
-                                    />
-                                    <Title
-                                      text={new Intl.NumberFormat('pt-BR', {
-                                        style: 'currency',
-                                        currency: 'BRL',
-                                      }).format(priceSell * 0.2)}
-                                      family="bold"
-                                      size="small"
-                                    />
-                                  </Styled.BoxText>
-                                </>
-                              ),
-                            )
-                          : null}
-                        {infosModal?.item?.priceSell?.length &&
-                        infosModal.item.priceSell.length > 0 ? (
-                          <>
+                            ))}
                             <Styled.BoxText1>
                               <Title
-                                text="Valor total dos itens:"
+                                text="Total dos serviços: "
                                 size="xsmall"
                                 marginTop="xxnano"
                               />
@@ -480,7 +437,7 @@ export default function Finish() {
                                 text={new Intl.NumberFormat('pt-BR', {
                                   style: 'currency',
                                   currency: 'BRL',
-                                }).format(priceSellTotal)}
+                                }).format(priceTotal)}
                                 family="bold"
                                 size="small"
                               />
@@ -488,123 +445,601 @@ export default function Finish() {
                                 text={new Intl.NumberFormat('pt-BR', {
                                   style: 'currency',
                                   currency: 'BRL',
-                                }).format(comisisonItem)}
+                                }).format(comisisonService)}
                                 family="bold"
                                 size="small"
                               />
                             </Styled.BoxText>
-                          </>
-                        ) : null}
-                      </Styled.TextInfos>
-                      <Title
-                        text="Valor total da comissão"
-                        size="xsmall"
-                        marginTop="xxnano"
-                        align="center"
-                      />
-                      <Title
-                        text={new Intl.NumberFormat('pt-BR', {
-                          style: 'currency',
-                          currency: 'BRL',
-                        }).format(comisisonItem + comisisonService)}
-                        family="bold"
-                        size="small"
-                        align="center"
-                      />
-                    </Styled.BoxInfos>
-                    <Title
-                      text="Foi feito mais algum serviço ou venda?"
-                      align="center"
-                      marginTop="medium"
-                      marginBottom="medium"
-                      size="xsmall"
-                      family="bold"
-                    />
-                    <Button
-                      text="Adicionar"
-                      size={100}
-                      colorButton="error"
-                      onPress={() => setModalVisible2(!modalVisible2)}
-                    />
-                    <Button
-                      text="Finalizar comanda"
-                      size={100}
-                      colorButton="error"
-                    />
 
-                    <Styled.Modal
-                      animationType="slide"
-                      transparent={true}
-                      visible={modalVisible2}
-                      onRequestClose={() => {
-                        setModalVisible2(!modalVisible2);
-                      }}>
-                      <Styled.BoxModal>
-                        <Styled.ModalView2>
-                          <Title text="TesteHere" />
-                          <Styled.Touch
-                            onPress={() => setModalVisible2(!modalVisible2)}>
-                            <Title text="Fechar" />
-                          </Styled.Touch>
-                          <InputForm
-                            placeholder="Qual serviço foi feito?"
-                            control={control}
-                            name={'service'}
-                            size="100%"
-                            color="black"
-                          />
-                          <InputForm
-                            placeholder="Qual o valor dele?"
-                            control={control}
-                            name={'priceService'}
-                            size="100%"
-                            color="black"
+                            {infosModal?.item.sells &&
+                            infosModal.item.sells.length > 0 ? (
+                              <Title
+                                text="Vendas:"
+                                marginTop="xxnano"
+                                size="xsmall"
+                              />
+                            ) : null}
+
+                            {infosModal?.item.sells &&
+                            infosModal.item.sells.length > 0
+                              ? infosModal.item.sells.map((sells, index) => (
+                                  <Styled.BoxText key={index}>
+                                    <Title
+                                      text={sells}
+                                      family="bold"
+                                      size="small"
+                                    />
+                                  </Styled.BoxText>
+                                ))
+                              : null}
+
+                            {infosModal?.item?.priceSell?.length &&
+                            infosModal.item.priceSell.length > 0 ? (
+                              <Styled.BoxText>
+                                <Title
+                                  text="Valor do item:"
+                                  marginTop="xxnano"
+                                  size="xsmall"
+                                />
+                                <Title
+                                  text="Comissão"
+                                  marginTop="xxnano"
+                                  size="xsmall"
+                                />
+                              </Styled.BoxText>
+                            ) : null}
+
+                            {infosModal?.item?.priceSell?.length &&
+                            infosModal.item.priceSell.length > 0
+                              ? infosModal.item.priceSell.map(
+                                  (priceSell, index) => (
+                                    <Styled.BoxText key={index}>
+                                      <Title
+                                        text={new Intl.NumberFormat('pt-BR', {
+                                          style: 'currency',
+                                          currency: 'BRL',
+                                        }).format(priceSell)}
+                                        family="bold"
+                                        size="small"
+                                      />
+                                      <Title
+                                        text={new Intl.NumberFormat('pt-BR', {
+                                          style: 'currency',
+                                          currency: 'BRL',
+                                        }).format(priceSell * 0.2)}
+                                        family="bold"
+                                        size="small"
+                                      />
+                                    </Styled.BoxText>
+                                  ),
+                                )
+                              : null}
+                            {infosModal?.item?.priceSell?.length &&
+                            infosModal.item.priceSell.length > 0 ? (
+                              <>
+                                <Styled.BoxText1>
+                                  <Title
+                                    text="Valor total dos itens:"
+                                    size="xsmall"
+                                    marginTop="xxnano"
+                                  />
+                                  <Title
+                                    text="Comissão "
+                                    size="xsmall"
+                                    marginTop="xxnano"
+                                  />
+                                </Styled.BoxText1>
+                                <Styled.BoxText>
+                                  <Title
+                                    text={new Intl.NumberFormat('pt-BR', {
+                                      style: 'currency',
+                                      currency: 'BRL',
+                                    }).format(priceSellTotal)}
+                                    family="bold"
+                                    size="small"
+                                  />
+                                  <Title
+                                    text={new Intl.NumberFormat('pt-BR', {
+                                      style: 'currency',
+                                      currency: 'BRL',
+                                    }).format(comisisonItem)}
+                                    family="bold"
+                                    size="small"
+                                  />
+                                </Styled.BoxText>
+                              </>
+                            ) : null}
+                          </Styled.TextInfos>
+                          <Title
+                            text="Valor total da comissão"
+                            size="xsmall"
+                            marginTop="xxnano"
+                            align="center"
                           />
                           <Title
-                            text="Foi feita alguma venda? Se sim."
-                            marginTop="medium"
-                            size="medium"
+                            text={new Intl.NumberFormat('pt-BR', {
+                              style: 'currency',
+                              currency: 'BRL',
+                            }).format(totalComission)}
                             family="bold"
+                            size="small"
+                            align="center"
                           />
-                          <InputForm
-                            placeholder="Qual Produto?"
-                            control={control}
-                            name={'sell'}
-                            size="100%"
-                            color="black"
-                          />
-                          <InputForm
-                            placeholder="Qual o valor dele?"
-                            control={control}
-                            name={'priceSell'}
-                            size="100%"
-                            color="black"
-                          />
-                          <Button
-                            colorButton="error"
-                            text="Adicionar"
-                            size={100}
-                            onPress={handleSubmit(onSubmit)}
-                          />
-                        </Styled.ModalView2>
-                      </Styled.BoxModal>
-                    </Styled.Modal>
-                  </Styled.Scroll>
-                </Styled.ModalView1>
-              </Styled.BoxModal>
-            </Styled.Modal>
-          </Styled.BoxFlat>
-        ) : (
-          <Styled.NotProfisisonal>
+                        </Styled.BoxInfos>
+                        <Title
+                          text="Foi feito mais algum serviço ou venda?"
+                          align="center"
+                          marginTop="medium"
+                          marginBottom="medium"
+                          size="xsmall"
+                          family="bold"
+                        />
+                        <Button
+                          text="Adicionar"
+                          size={100}
+                          colorButton="error"
+                          onPress={() => setModalVisible2(true)}
+                        />
+                        <Button
+                          text="Finalizar comanda"
+                          size={100}
+                          colorButton="error"
+                          onPress={() => finishOrder(infosModal)}
+                        />
+
+                        <Styled.Modal
+                          animationType="slide"
+                          transparent={true}
+                          visible={modalVisible2}
+                          onRequestClose={() => {
+                            setModalVisible2(!modalVisible2);
+                          }}>
+                          <Styled.BoxModal>
+                            <Styled.ModalView2>
+                              <Title text="TesteHere" />
+                              <Styled.Touch
+                                onPress={() =>
+                                  setModalVisible2(!modalVisible2)
+                                }>
+                                <Title text="Fechar" />
+                              </Styled.Touch>
+                              <InputForm
+                                placeholder="Qual serviço foi feito?"
+                                control={control}
+                                name={'service'}
+                                size="100%"
+                                color="black"
+                              />
+                              <InputForm
+                                placeholder="Qual o valor dele?"
+                                control={control}
+                                name={'priceService'}
+                                size="100%"
+                                color="black"
+                              />
+                              <Title
+                                text="Foi feita alguma venda? Se sim."
+                                marginTop="medium"
+                                size="medium"
+                                family="bold"
+                              />
+                              <InputForm
+                                placeholder="Qual Produto?"
+                                control={control}
+                                name={'sell'}
+                                size="100%"
+                                color="black"
+                              />
+                              <InputForm
+                                placeholder="Qual o valor dele?"
+                                control={control}
+                                name={'priceSell'}
+                                size="100%"
+                                color="black"
+                              />
+                              <Button
+                                colorButton="error"
+                                text="Adicionar"
+                                size={100}
+                                onPress={handleSubmit(onSubmit)}
+                              />
+                            </Styled.ModalView2>
+                          </Styled.BoxModal>
+                        </Styled.Modal>
+                      </Styled.Scroll>
+                    </Styled.ModalView1>
+                  </Styled.BoxModal>
+                </Styled.Modal>
+              </Styled.BoxFlat>
+            ) : (
+              <Styled.NotProfisisonal>
+                <Title
+                  text="Selecione um profissional para exebir seus atendimentos"
+                  size="medium"
+                  align="center"
+                  family="bold"
+                />
+              </Styled.NotProfisisonal>
+            )}
+          </Styled.Body>
+        </>
+      ) : (
+        <>
+          <Styled.Header>
+            <Styled.Touch onPress={() => navigation.goBack()}>
+              <Back />
+            </Styled.Touch>
+            <Title text="Atendimentos feitos" size="large" family="bold" />
+          </Styled.Header>
+          <Styled.TouchPro onPress={() => setModalVisible(true)}>
+            <Title text="Escolha o profissional: " size="small" family="bold" />
             <Title
-              text="Selecione um profissional para exebir seus atendimentos"
-              size="medium"
-              align="center"
+              text={'' || chose?.professional}
+              size="xsmall"
               family="bold"
+              marginRight="small"
             />
-          </Styled.NotProfisisonal>
-        )}
-      </Styled.Body>
+          </Styled.TouchPro>
+          <Styled.Modal
+            animationType="slide"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={() => {
+              setModalVisible(!modalVisible);
+            }}>
+            <Styled.BoxModal>
+              <Styled.ModalView>
+                <Title
+                  text="Escolha um profissional:"
+                  size="medium"
+                  family="bold"
+                />
+                {profissionais ? (
+                  profissionais.map(profissional => (
+                    <Styled.Touch2
+                      key={profissional.id}
+                      onPress={() => {
+                        fetchUserInfo(profissional.uid);
+                        setChose(profissional);
+                        setModalVisible(!modalVisible);
+                      }}>
+                      <Title
+                        text={profissional?.professional}
+                        size="large"
+                        family="bold"
+                      />
+                      <Styled.Img1
+                        source={{
+                          uri: profissional?.img,
+                        }}
+                      />
+                    </Styled.Touch2>
+                  ))
+                ) : (
+                  <Title text="Carregando..." size="small" />
+                )}
+              </Styled.ModalView>
+            </Styled.BoxModal>
+          </Styled.Modal>
+          <Styled.Body>
+            {chose ? (
+              <Styled.BoxFlat>
+                <Styled.Flat
+                  data={services}
+                  keyExtractor={(item, index) => index.toString()}
+                  renderItem={renderServices}
+                />
+                <Styled.Modal
+                  animationType="slide"
+                  transparent={true}
+                  visible={modalVisible1}
+                  onRequestClose={() => {
+                    setModalVisible(!modalVisible1);
+                  }}>
+                  <Styled.BoxModal>
+                    <Styled.ModalView1>
+                      <Styled.TouchClosed
+                        onPress={() => setModalVisible1(!modalVisible1)}>
+                        <Title text="X" size="medium" family="bold" />
+                      </Styled.TouchClosed>
+                      <Styled.TextDescr>
+                        <Title text="Cliente: " size="medium" />
+                        <Title
+                          text={infosModal?.name}
+                          family="bold"
+                          size="medium"
+                        />
+                      </Styled.TextDescr>
+                      <Styled.Scroll showsVerticalScrollIndicator={false}>
+                        <Styled.BoxInfos>
+                          <Title text="Serviços feitos: " size="xsmall" />
+                          <Styled.TextInfos>
+                            {infosModal?.item.title.map((title, index) => (
+                              <Styled.BoxText key={index}>
+                                <Title
+                                  text={title}
+                                  family="bold"
+                                  size="xsmall"
+                                />
+                              </Styled.BoxText>
+                            ))}
+                            <Styled.BoxText>
+                              <Title
+                                text="Valor dos serviços: "
+                                size="xsmall"
+                                marginTop="xxnano"
+                              />
+                              <Title
+                                text="Comissão "
+                                size="xsmall"
+                                marginTop="xxnano"
+                              />
+                            </Styled.BoxText>
+
+                            {infosModal?.item.price.map((price, index) => (
+                              <Styled.BoxText key={index}>
+                                <Title
+                                  text={new Intl.NumberFormat('pt-BR', {
+                                    style: 'currency',
+                                    currency: 'BRL',
+                                  }).format(price)}
+                                  family="bold"
+                                  size="small"
+                                />
+                                <Title
+                                  text={new Intl.NumberFormat('pt-BR', {
+                                    style: 'currency',
+                                    currency: 'BRL',
+                                  }).format(price * 0.4)}
+                                  family="bold"
+                                  size="small"
+                                />
+                              </Styled.BoxText>
+                            ))}
+                            <Styled.BoxText1>
+                              <Title
+                                text="Total dos serviços: "
+                                size="xsmall"
+                                marginTop="xxnano"
+                              />
+                              <Title
+                                text="Comissão "
+                                size="xsmall"
+                                marginTop="xxnano"
+                              />
+                            </Styled.BoxText1>
+                            <Styled.BoxText>
+                              <Title
+                                text={new Intl.NumberFormat('pt-BR', {
+                                  style: 'currency',
+                                  currency: 'BRL',
+                                }).format(priceTotal)}
+                                family="bold"
+                                size="small"
+                              />
+                              <Title
+                                text={new Intl.NumberFormat('pt-BR', {
+                                  style: 'currency',
+                                  currency: 'BRL',
+                                }).format(comisisonService)}
+                                family="bold"
+                                size="small"
+                              />
+                            </Styled.BoxText>
+
+                            {infosModal?.item.sells &&
+                            infosModal.item.sells.length > 0 ? (
+                              <Title
+                                text="Vendas:"
+                                marginTop="xxnano"
+                                size="xsmall"
+                              />
+                            ) : null}
+
+                            {infosModal?.item.sells &&
+                            infosModal.item.sells.length > 0
+                              ? infosModal.item.sells.map((sells, index) => (
+                                  <Styled.BoxText key={index}>
+                                    <Title
+                                      text={sells}
+                                      family="bold"
+                                      size="small"
+                                    />
+                                  </Styled.BoxText>
+                                ))
+                              : null}
+
+                            {infosModal?.item?.priceSell?.length &&
+                            infosModal.item.priceSell.length > 0 ? (
+                              <Styled.BoxText>
+                                <Title
+                                  text="Valor do item:"
+                                  marginTop="xxnano"
+                                  size="xsmall"
+                                />
+                                <Title
+                                  text="Comissão"
+                                  marginTop="xxnano"
+                                  size="xsmall"
+                                />
+                              </Styled.BoxText>
+                            ) : null}
+
+                            {infosModal?.item?.priceSell?.length &&
+                            infosModal.item.priceSell.length > 0
+                              ? infosModal.item.priceSell.map(
+                                  (priceSell, index) => (
+                                    <Styled.BoxText key={index}>
+                                      <Title
+                                        text={new Intl.NumberFormat('pt-BR', {
+                                          style: 'currency',
+                                          currency: 'BRL',
+                                        }).format(priceSell)}
+                                        family="bold"
+                                        size="small"
+                                      />
+                                      <Title
+                                        text={new Intl.NumberFormat('pt-BR', {
+                                          style: 'currency',
+                                          currency: 'BRL',
+                                        }).format(priceSell * 0.2)}
+                                        family="bold"
+                                        size="small"
+                                      />
+                                    </Styled.BoxText>
+                                  ),
+                                )
+                              : null}
+                            {infosModal?.item?.priceSell?.length &&
+                            infosModal.item.priceSell.length > 0 ? (
+                              <>
+                                <Styled.BoxText1>
+                                  <Title
+                                    text="Valor total dos itens:"
+                                    size="xsmall"
+                                    marginTop="xxnano"
+                                  />
+                                  <Title
+                                    text="Comissão "
+                                    size="xsmall"
+                                    marginTop="xxnano"
+                                  />
+                                </Styled.BoxText1>
+                                <Styled.BoxText>
+                                  <Title
+                                    text={new Intl.NumberFormat('pt-BR', {
+                                      style: 'currency',
+                                      currency: 'BRL',
+                                    }).format(priceSellTotal)}
+                                    family="bold"
+                                    size="small"
+                                  />
+                                  <Title
+                                    text={new Intl.NumberFormat('pt-BR', {
+                                      style: 'currency',
+                                      currency: 'BRL',
+                                    }).format(comisisonItem)}
+                                    family="bold"
+                                    size="small"
+                                  />
+                                </Styled.BoxText>
+                              </>
+                            ) : null}
+                          </Styled.TextInfos>
+                          <Title
+                            text="Valor total da comissão"
+                            size="xsmall"
+                            marginTop="xxnano"
+                            align="center"
+                          />
+                          <Title
+                            text={new Intl.NumberFormat('pt-BR', {
+                              style: 'currency',
+                              currency: 'BRL',
+                            }).format(totalComission)}
+                            family="bold"
+                            size="small"
+                            align="center"
+                          />
+                        </Styled.BoxInfos>
+                        <Title
+                          text="Foi feito mais algum serviço ou venda?"
+                          align="center"
+                          marginTop="medium"
+                          marginBottom="medium"
+                          size="xsmall"
+                          family="bold"
+                        />
+                        <Button
+                          text="Adicionar"
+                          size={100}
+                          colorButton="error"
+                          onPress={() => setModalVisible2(!modalVisible2)}
+                        />
+                        <Button
+                          text="Finalizar comanda"
+                          size={100}
+                          colorButton="error"
+                          onPress={() => finishOrder(infosModal)}
+                        />
+
+                        <Styled.Modal
+                          animationType="slide"
+                          transparent={true}
+                          visible={modalVisible2}
+                          onRequestClose={() => {
+                            setModalVisible2(!modalVisible2);
+                          }}>
+                          <Styled.BoxModal>
+                            <Styled.ModalView2>
+                              <Title text="TesteHere" />
+                              <Styled.Touch
+                                onPress={() =>
+                                  setModalVisible2(!modalVisible2)
+                                }>
+                                <Title text="Fechar" />
+                              </Styled.Touch>
+                              <InputForm
+                                placeholder="Qual serviço foi feito?"
+                                control={control}
+                                name={'service'}
+                                size="100%"
+                                color="black"
+                              />
+                              <InputForm
+                                placeholder="Qual o valor dele?"
+                                control={control}
+                                name={'priceService'}
+                                size="100%"
+                                color="black"
+                              />
+                              <Title
+                                text="Foi feita alguma venda? Se sim."
+                                marginTop="medium"
+                                size="medium"
+                                family="bold"
+                              />
+                              <InputForm
+                                placeholder="Qual Produto?"
+                                control={control}
+                                name={'sell'}
+                                size="100%"
+                                color="black"
+                              />
+                              <InputForm
+                                placeholder="Qual o valor dele?"
+                                control={control}
+                                name={'priceSell'}
+                                size="100%"
+                                color="black"
+                              />
+                              <Button
+                                colorButton="error"
+                                text="Adicionar"
+                                size={100}
+                                onPress={handleSubmit(onSubmit)}
+                              />
+                            </Styled.ModalView2>
+                          </Styled.BoxModal>
+                        </Styled.Modal>
+                      </Styled.Scroll>
+                    </Styled.ModalView1>
+                  </Styled.BoxModal>
+                </Styled.Modal>
+              </Styled.BoxFlat>
+            ) : (
+              <Styled.NotProfisisonal>
+                <Title
+                  text="Selecione um profissional para exebir seus atendimentos"
+                  size="medium"
+                  align="center"
+                  family="bold"
+                />
+              </Styled.NotProfisisonal>
+            )}
+          </Styled.Body>
+        </>
+      )}
     </Styled.Container>
   );
 }
