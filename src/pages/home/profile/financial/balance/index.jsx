@@ -74,7 +74,7 @@ export default function Balance() {
 
   useEffect(() => {
     fetchUserInfo();
-  }, []);
+  }, [priceSellTotal]);
 
   return (
     <Styled.Container>
@@ -117,7 +117,7 @@ export default function Balance() {
                           const count = titleCounts[title];
                           const titleText =
                             count > 1
-                              ? `${title} x${count}`
+                              ? `${title} (x${count})`
                               : count === 1
                               ? title
                               : null;
@@ -208,7 +208,7 @@ export default function Balance() {
                         const allSells = user
                           .map(userItem => userItem.item.sells)
                           .flat()
-                          .filter(Boolean); // Filtra para remover valores nulos
+                          .filter(Boolean);
 
                         const sellsCounts = allSells.reduce((acc, sells) => {
                           acc[sells] = (acc[sells] || 0) + 1;
@@ -221,7 +221,7 @@ export default function Balance() {
                           const count = sellsCounts[sells];
                           const sellsText =
                             count > 1
-                              ? `${sells} x${count}`
+                              ? `${sells} (x${count})`
                               : count === 1
                               ? sells
                               : null;
