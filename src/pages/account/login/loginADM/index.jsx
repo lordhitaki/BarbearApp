@@ -36,7 +36,7 @@ export default function LoginAdm() {
     },
   });
   const email = watch('username');
-  const password = watch('Password'); // Corrigido para 'Password' com P maiúsculo
+  const password = watch('Password');
 
   const togglePasswordVisibility = () => {
     setPasswordVisible(prevState => !prevState);
@@ -47,7 +47,7 @@ export default function LoginAdm() {
       .signInWithEmailAndPassword(email, password)
       .then(() => {
         Toast.show({
-          type: 'LoginSuccess', // Corrigido para 'LoginSuccess'
+          type: 'LoginSuccess',
         });
         navigation.navigate('Home');
       })
@@ -73,7 +73,7 @@ export default function LoginAdm() {
             </Styled.TouchPass>
             <InputForm
               control={control}
-              name={'Password'} // Corrigido para 'Password' com P maiúsculo
+              name={'Password'}
               label="Senha"
               size="90%"
               secureTextEntry={!passwordVisible}

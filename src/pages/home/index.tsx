@@ -5,6 +5,8 @@ import {useForm} from 'react-hook-form';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import firestore from '@react-native-firebase/firestore';
 import {parsePhoneNumberFromString} from 'libphonenumber-js';
+import Toast from 'react-native-toast-message';
+import {Keyboard} from 'react-native';
 
 import TabRoute from '../../routes/tabBar';
 import {Title} from '../../components/title';
@@ -12,12 +14,12 @@ import InputForm from '../../components/form/input/form';
 
 import * as Styled from './styles';
 import Button from '../../components/button';
-import Toast from 'react-native-toast-message';
 
 export default function Home() {
   const [modalVisible, setModalVisible] = useState(false);
   const [user, setUser] = useState(null);
   const [phoneAdded, setPhoneAdded] = useState(false);
+  const [open, setOpen] = useState(false);
 
   const fetchUserInfo = async () => {
     const storedUser = await AsyncStorage.getItem('user');

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 
@@ -6,10 +6,29 @@ import MySchedule from '../pages/home/mySchedule/';
 import Scheduler from '../pages/home/scheduler';
 import Profile from '../pages/home/profile';
 import News from '../pages/home/news';
+import SvgScheduleOn from '../../assets/img/scheduleOn';
+import SvgScheduleOff from '../../assets/img/scheduleOff';
+import SvgProfileOff from '../../assets/img/profile';
+import SvgProfileOn from '../../assets/img/profileOn';
+import {Keyboard} from 'react-native';
 
 const Tab = createBottomTabNavigator();
 
 export default function TabRoute() {
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
+      setOpen(true);
+    });
+    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+      setOpen(false);
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
   return (
     <Tab.Navigator
       screenOptions={{
@@ -21,6 +40,7 @@ export default function TabRoute() {
           borderTopColor: 'black',
           borderTopWidth: 1,
           height: '7%',
+          display: open ? 'none' : 'flex',
         },
         tabBarLabelStyle: {
           fontSize: 14,
@@ -32,9 +52,9 @@ export default function TabRoute() {
         options={{
           tabBarIcon: ({color, size, focused}) => {
             if (focused) {
-              return <Icon name="tasks" color="red" size={28} />;
+              return <Icon name="tasks" color="#FC0137" size={28} />;
             }
-            return <Icon name="tasks" color="#000" size={28} />;
+            return <Icon name="tasks" color="#555555" size={28} />;
           },
         }}
       />
@@ -44,9 +64,9 @@ export default function TabRoute() {
         options={{
           tabBarIcon: ({color, size, focused}) => {
             if (focused) {
-              return <Icon name="calendar-day" color="red" size={28} />;
+              return <SvgScheduleOn />;
             }
-            return <Icon name="calendar-day" color="#000" size={28} />;
+            return <SvgScheduleOff />;
           },
           headerStyle: {
             backgroundColor: '#121212',
@@ -60,9 +80,9 @@ export default function TabRoute() {
         options={{
           tabBarIcon: ({color, size, focused}) => {
             if (focused) {
-              return <Icon name="newspaper" color="red" size={28} />;
+              return <Icon name="newspaper" color="#FC0137" size={28} />;
             }
-            return <Icon name="newspaper" color="#000" size={28} />;
+            return <Icon name="newspaper" color="#555555" size={28} />;
           },
           headerStyle: {
             backgroundColor: '#121212',
@@ -76,9 +96,9 @@ export default function TabRoute() {
         options={{
           tabBarIcon: ({color, size, focused}) => {
             if (focused) {
-              return <Icon name="user-alt" color="red" size={28} />;
+              return <SvgProfileOn />;
             }
-            return <Icon name="user-alt" color="#000" size={28} />;
+            return <SvgProfileOff />;
           },
         }}
       />

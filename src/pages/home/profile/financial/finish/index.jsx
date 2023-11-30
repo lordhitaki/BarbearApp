@@ -192,39 +192,37 @@ export default function Finish() {
         .collection('done')
         .where('uidPro', '==', uidPro)
         .get();
-      const infoDataArray = [];
 
-      if (!infoSnapshot.empty) {
-        infoSnapshot.forEach(doc => {
-          const infoData = doc.data();
-          infoDataArray.push(infoData);
-        });
+      const infoDataArray = infoSnapshot.docs.map(doc => doc.data());
+
+      if (infoDataArray.length > 0) {
         setServices(infoDataArray);
       } else {
         setServices([]);
       }
     } catch (error) {
-      console.error('Erro ao consultar o Firestore:', error);
+      console.error(
+        'Erro ao consultar o Firestore para serviços concluídos:',
+        error,
+      );
+    } finally {
+      await catchName();
     }
-    catchName();
   };
 
   const catchName = async () => {
     try {
       const querySnapshot = await firestore().collection('infos').get();
-      const infoDataArray = [];
 
-      if (!querySnapshot.empty) {
-        querySnapshot.forEach(doc => {
-          const infoData = doc.data();
-          infoDataArray.push(infoData);
-        });
+      const infoDataArray = querySnapshot.docs.map(doc => doc.data());
+
+      if (infoDataArray.length > 0) {
         setInfos(infoDataArray);
       } else {
         setInfos([]);
       }
     } catch (error) {
-      console.error('Erro ao consultar o Firestore para os serviços: ', error);
+      console.error('Erro ao consultar o Firestore para infos:', error);
     }
   };
 
@@ -236,6 +234,11 @@ export default function Finish() {
       currency: 'BRL',
     }).format(item.price);
 
+    const findNameByUid = uid => {
+      const matchingInfo = infos && infos.find(info => info.uid === uid);
+      return matchingInfo ? matchingInfo.name : 'Sem Nome';
+    };
+
     const openModal = () => {
       const selectedItem = {
         item: item,
@@ -243,10 +246,6 @@ export default function Finish() {
       };
       setInfosModal(selectedItem);
       setModalVisible1(true);
-    };
-    const findNameByUid = uid => {
-      const matchingInfo = infos.find(info => info.uid === uid);
-      return matchingInfo ? matchingInfo.name : 'Sem Nome';
     };
 
     return (
