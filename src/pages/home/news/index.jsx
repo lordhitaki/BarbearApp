@@ -25,6 +25,7 @@ export default function News() {
   const [img, setImg] = useState();
   const [news, setNews] = useState();
   const [load, setLoad] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const signUpSchema = yup.object({
     TextPost: yup.string().required('Preencha este campo'),
@@ -132,56 +133,74 @@ export default function News() {
   };
   const renderServices = ({item, index}) => {
     return (
-      <Styled.ContainerNews>
-        {item.Photo ? (
-          <Styled.BoxNewsImg>
-            <Styled.NewsImg source={{uri: item.Photo}} />
-          </Styled.BoxNewsImg>
-        ) : null}
-
-        <Title text={item.TextPost} />
-      </Styled.ContainerNews>
+      <>
+        <Styled.ContainerNews>
+          {item.Photo ? (
+            <Styled.BoxNewsImg>
+              <Styled.Touch
+                onPress={() => {
+                  setModalVisible(!modalVisible);
+                  setImg(item.Photo);
+                }}>
+                <Styled.NewsImg source={{uri: item.Photo}} />
+              </Styled.Touch>
+            </Styled.BoxNewsImg>
+          ) : null}
+          <Styled.BoxTextNew>
+            <Title text={item.TextPost} />
+          </Styled.BoxTextNew>
+        </Styled.ContainerNews>
+        <Styled.Modal
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => setModalVisible(false)}>
+          <Styled.BoxModal>
+            <Styled.Touch onPress={() => setModalVisible(!modalVisible)}>
+              <Title text="X" />
+            </Styled.Touch>
+            <Styled.NewsImg source={{uri: img}} />
+          </Styled.BoxModal>
+        </Styled.Modal>
+      </>
     );
   };
 
   return (
-    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      <KeyboardAvoidingView behavior="height" style={{flex: 1}}>
-        <Styled.Container>
-          {admin ? (
-            <>
-              <Title text="Aqui vai ser onde vem as novidades" />
-              <Styled.Touch onPress={() => selectImage()}>
-                <Title text="Teste" />
-              </Styled.Touch>
-              {load ? <ActivityIndicator /> : null}
-              {img ? <Styled.Photo source={{uri: img}} /> : null}
-              <InputForm
-                control={control}
-                name="TextPost"
-                placeholder="Digite aqui"
-                multiline={true}
-                numberOfLines={10}
-                textAlignVertical="top"
-              />
-              <Button
-                text="Publicar"
-                colorButton="success"
-                border="transparent"
-                onPress={handleSubmit(SendNews)}
-              />
-            </>
-          ) : (
-            <Styled.BoxFlat>
-              <Styled.Flat
-                data={news}
-                keyExtractor={(item, index) => index.toString()}
-                renderItem={renderServices}
-              />
-            </Styled.BoxFlat>
-          )}
-        </Styled.Container>
-      </KeyboardAvoidingView>
-    </TouchableWithoutFeedback>
+    <Styled.Container>
+      {admin ? (
+        <>
+          <Title text="Aqui vai ser onde vem as novidades" />
+          <Styled.Touch onPress={() => selectImage()}>
+            <Title text="Teste" />
+          </Styled.Touch>
+          {load ? <ActivityIndicator /> : null}
+          {img ? <Styled.Photo source={{uri: img}} /> : null}
+          <InputForm
+            control={control}
+            name="TextPost"
+            placeholder="Digite aqui"
+            multiline={true}
+            numberOfLines={10}
+            textAlignVertical="top"
+          />
+          <Button
+            text="Publicar"
+            colorButton="success"
+            border="transparent"
+            onPress={handleSubmit(SendNews)}
+          />
+        </>
+      ) : (
+        <>
+          <Styled.BoxFlat>
+            <Styled.Flat
+              data={news}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={renderServices}
+            />
+          </Styled.BoxFlat>
+        </>
+      )}
+    </Styled.Container>
   );
 }

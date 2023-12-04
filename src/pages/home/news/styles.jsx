@@ -34,6 +34,11 @@ export const BoxFlat = styled.View`
 export const ContainerNews = styled.View`
   border-width: 0.5px;
   margin-top: 30px;
+  align-items: center;
+  justify-content: center;
+  background-color: aliceblue;
+  border-radius: 15px;
+  padding: 10px;
 `;
 
 export const BoxNewsImg = styled.View`
@@ -46,4 +51,24 @@ export const NewsImg = styled.Image`
   width: 100%;
   height: 100%;
   object-fit: contain;
+`;
+
+export const BoxTextNew = styled.TouchableOpacity`
+  margin-top: 10px;
+  width: 100%;
+  background-color: aqua;
+  border-radius: 15px;
+`;
+
+export const Modal = styled.Modal``;
+
+export const BoxModal = styled.View`
+  margin-top: 50%;
+  margin-left: 5%;
+  width: 90%;
+  height: 35%;
+  background-color: ${props => props.theme.colors.white};
+  border-radius: 15px;
+  elevation: 5;
+  padding: 10px;
 `;
